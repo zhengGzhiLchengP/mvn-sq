@@ -1,0 +1,290 @@
+<%
+layout("/common/_fq_layout.html",{title:'让记笔记更方便 -飞趣'}){
+%>
+<style>
+    .note{
+        cursor: pointer;
+        height: 120px;
+        overflow: hidden;
+        text-align: left;
+        position: relative;
+        margin: 0 auto;
+    }
+    .note:hover{
+        background-color: #5fb8786e;
+    }
+
+    .NotesView-ScrollWindow {
+        height: 622px;
+        overflow: hidden scroll;
+    }
+    .addNote{
+
+    }
+    .icon-style {
+        font-size: 30px; color: #1E9FFF;
+        cursor: pointer;
+    }
+    .icon-style-sm {
+        font-size: 18px; color: #999;
+        cursor: pointer;
+    }
+    .label{
+        color: #606060;
+        background-color: #f8f8f8;
+        vertical-align: top;
+        border: 1px solid #ececec;
+        padding: 1px 8px 1px;
+        border-radius: 4px;
+        margin: 0 5px;
+    }
+    .layui-container{
+        width: 100%;
+    }
+    .tox-fullscreen .tox.tox-tinymce.tox-fullscreen {
+        z-index: 10001;
+    }
+    .note-show li{
+        list-style: inherit;
+    }
+</style>
+<div class="layui-container">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md1">
+            <div class="c-panel">
+                <div class="c-panel-body c-text-center">
+                    <div>
+                        <i title="新建笔记" class="layui-icon layui-icon-add-circle-fine addNote icon-style" style=""></i>
+                    </div>
+                    <div>
+                        <i title="搜索" class="layui-icon layui-icon-search icon-style search-note"></i>
+                    </div>
+                    <div>
+                        <!--<i title="标签" class="layui-icon layui-icon-note icon-style search-note"></i>-->
+                    </div>
+                    <div>
+                        <a title="笔记" href="/note/"><i class="layui-icon layui-icon-file-b icon-style"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-body" style="height: 60px;overflow: scroll">
+                    <%for(var label in labelList!){%>
+                    <span class="layui-badge layui-bg-green"><a
+                            href="${ctxPath}/note?label=${label}">${label}</a></span>
+                    <%}%>
+                </div>
+                <div class="c-panel-body NotesView-ScrollWindow">
+                    <ul class="c-list3">
+                        <%for(var note in pageInfo.list!){%>
+                        <li>
+                            <div class="note word-deal" data-id="${note.id}">
+                                <i class="fa fa-trash-o c-position-rt node-del" style="z-index: 1"></i>
+                                <div class="summary">${note.summary}
+                                </div>
+                            </div>
+                        </li>
+                        <%}%>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="c-panel">
+                <div id="pagesplit" class="c-panel-body">
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md7">
+            <div class="c-panel layui-hide show-place">
+                <div class="c-panel-body">
+                    <button class="layui-btn layui-btn-sm c-position-rt edit-note-action">编辑</button>
+                    <div class="label-css"></div><hr>
+                    <div class="note-show">
+                    </div>
+                </div>
+            </div>
+            <div class="c-panel edit-place">
+                <div class="c-panel-title">
+                    <div style="display: inline-block" id="labels-head">
+                    <i title="标签" class="layui-icon layui-icon-note icon-style-sm"></i>
+                    </div>
+                    <div style="display: inline-block" id="labels"></div>
+                    <div class="" style="width: auto; height: 100%;display: inline-block">
+                        <input class="layui-input newlabel"  placeholder="新建标签...">
+                    </div>
+                </div>
+                <div class="c-panel-body">
+                    <textarea rows="6" class="layui-textarea " autofocus></textarea><br>
+                    <button class="layui-btn saveNote">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
+<script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script>
+<script type="text/javascript" src="/js/jquery.form.js"></script>
+<script>
+    layui.use(['fly', 'flow', 'face', 'laydate', 'laypage'], function () {
+        var fly = layui.fly, flow = layui.flow, laydate = layui.laydate, device = layui.device(),laypage = layui.laypage,
+            $newlabel=$('.newlabel'),$labels=$('#labels'),$showP=$('.show-place'),$editP=$('.edit-place');
+        $('.note').on('click',function () {
+            $showP.removeClass('layui-hide');$labels.html('')
+            $editP.addClass('layui-hide');
+            var id = $(this).data('id');
+            data.id = id;
+            fly.json('/note/'+id,function (res) {
+                $('.note-show').html(res.data.content)
+                tinyMCE.activeEditor.setContent(res.data.content)
+                if(res.data.label){
+                    $('.label-css').html('<span class="layui-badge layui-bg-blue">'+res.data.label+'</span>')
+                    label = res.data.label.split(',')
+                    for(var i in label){
+                        $labels.append('<span class="label">'+label[i]+'</span>')
+                    }
+                }else {
+                    $('.label-css').html('');label=[];
+                }
+            })
+        })
+        $('.edit-note-action').click(function () {
+            $showP.addClass('layui-hide');
+            $editP.removeClass('layui-hide');
+        })
+        tinymce.init({
+            selector: "textarea",
+            height: 450,
+            imagetools_cors_hosts: ['picsum.photos'],
+            language:'zh_CN',
+            plugins: 'print preview fullpage paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+            image_advtab: true,
+            importcss_append: true,
+            menubar: 'file edit view insert format tools table tc help',
+            file_picker_callback: function (callback, value, meta) {
+                if (meta.filetype === 'file') {
+                    callback('https://www.google.com/logos/google.jpg', { text: 'My text' });
+                }
+                if (meta.filetype === 'image') {
+                    callback('https://www.google.com/logos/google.jpg', { alt: 'My alt text' });
+                }
+                if (meta.filetype === 'media') {
+                    callback('movie.mp4', { source2: 'alt.ogg', poster: 'https://www.google.com/logos/google.jpg' });
+                }
+            },
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            contextmenu: "link image imagetools table configurepermanentpen",
+            images_upload_url: '/api/upload/',
+            images_upload_handler: function (blobInfo, success, failure) {
+                var formData = new FormData();
+                formData.append("file", blobInfo.blob(),blobInfo.filename());
+                $.ajax({
+                    url: '/api/upload/',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (result) {
+                        if (result.code == "0000") {
+                            $.modal.msgSuccess('上传成功')
+                            success(result.data);
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                    }
+                });
+            }
+        });
+        $(document).on('click', function(event){
+            var labelVal = $newlabel.val();
+            if(labelVal){
+                if(!$(event.target).hasClass('newlabel')){
+                    label.push(labelVal)
+                    $labels.append('<span class="label">'+labelVal+'</span>')
+                    $newlabel.val('')
+                }
+            }
+        });
+        laypage.render({
+            elem: 'pagesplit'
+            , curr:${pageInfo.pageNum}
+            , count: ${pageInfo.total}
+            , limit:${pageInfo.pageSize}
+            , layout: ['count', 'prev', 'page', 'next', 'skip']
+            , jump: function (obj, first) {
+                if (!first) {
+                    location.href = "${ctxPath}/note?page=" + obj.curr
+                }
+            }
+        });
+
+        $('.search-note').on('click',function () {
+            layer.open({
+                type: 1
+                ,title: '正在搜索你的笔记'
+                ,area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                ,content: ['<ul class="layui-form" style="margin: 20px;">'
+                    ,'<li class="layui-form-item">'
+                    ,'<label class="layui-form-label">关键词</label>'
+                    ,'<div class="layui-input-block">'
+                    ,'<input id="search" required name="picUrl" lay-verify="required" placeholder="回车搜索" maxlength="100" value="" class="layui-input">'
+                    ,'</div>'
+                    ,'</li>'
+                    ,'</ul>'].join('')
+                ,success: function(layero, index){
+                    $('#search').focus()
+                    $('#search').on('keyup', function (e) {
+                        if (e.keyCode === 13)
+                            location.href = layui.cache.domainUrl + '/note?keyword=' + $(this).val();
+                    })
+                }
+            });
+        })
+
+        var data ={
+            content:''
+        },label = []
+        $('.addNote').click(function () {
+            data.id = 0;
+            tinyMCE.activeEditor.setContent('');tinyMCE.activeEditor.focus(  );
+            $labels.html('');label = [];
+            $showP.addClass('layui-hide');
+            $editP.removeClass('layui-hide');
+        })
+        $('.saveNote').on('click',function () {
+            data.content = tinyMCE.activeEditor.getContent();
+            data.label = label.join(',');
+            fly.json('/note/save',data,function (res) {
+                $.modal.msgSuccess("保存成功")
+                if(!data.id){
+                    data.id = res.data.id;
+                    $('.c-list3').prepend('<li><div class="note" data-id="'+res.data.id+'"><div class="summary">'+res.data.summary+'</div></div></li>')
+                }
+            })
+        })
+        $('.node-del').on('click',function (e) {
+            e.stopPropagation()
+            var $this = $(this);
+            var id = $this.parent().data('id');
+            $.modal.confirm("确认删除这条笔记吗？",function () {
+                fly.json('/note/del/'+id,function (res) {
+                    $.modal.msgSuccess("删除成功")
+                    $this.parents('li').fadeOut(1000);
+                })
+            })
+        })
+    });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

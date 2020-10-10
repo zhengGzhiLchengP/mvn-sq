@@ -1,0 +1,10 @@
+<div class="c-panel">
+    <div class="c-panel-title">赞助商 - <a class="c-fly-link" href="/fqNotice/view/23">我要加入</a></div>
+    <div class="c-panel-body">
+        <%for(var ad in advertisements!){%>
+        <div class="ad-single">
+            <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+        </div>
+        <%}%>
+    </div>
+</div>

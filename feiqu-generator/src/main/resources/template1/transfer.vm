@@ -1,0 +1,57 @@
+/**
+* LY.com Inc.
+* Copyright (c) 2004-2016 All Rights Reserved.
+*/
+package com.ly.flight.tmc.web.mapper.corporation;
+
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import com.google.common.collect.Lists;
+import com.ly.flight.tmc.biz.vo.corporation.${model}VO;
+import com.ly.flight.tmc.web.dto.corporation.${model}DTO;
+
+/**
+* ${model}l VO、DTO实体转换器
+*
+* @author ${author}
+* @version ${ctime}
+*/
+public class ${model}Mapper {
+
+    /**
+    * ${model}DTO -> ${model}VO
+    *
+    * @param ${model}DTO
+    * @return
+    */
+    public static ${model}VO DTO2VO(${model}DTO ${mapper}DTO) {
+    if (${mapper}DTO == null) {
+    return null;
+    }
+    ${model}VO ${mapper}VO = new ${model}VO();
+    #foreach($filedName in $filedNames)
+        ${mapper}VO.set$filedName(${mapper}DTO.get$filedName());
+    #end
+    return ${mapper}VO;
+    }
+
+
+    /**
+    * ${model}VO——》${model}DTO
+    *
+    * @param ${mapper}VO
+    * @return
+    */
+    public static ${model}DTO VO2DTO(${model}VO ${mapper}VO) {
+    if (${mapper}VO == null) {
+    return null;
+    }
+    ${model}DTO ${mapper}DTO = new ${model}DTO();
+    #foreach($filedName in $filedNames)
+        ${mapper}DTO.set$filedName(${mapper}VO.get$filedName());
+    #end
+    return ${mapper}DTO;
+    }
+}

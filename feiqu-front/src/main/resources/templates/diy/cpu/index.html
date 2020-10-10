@@ -1,0 +1,129 @@
+<%
+layout("/common/_fq_layout.html",{title:'cpu信息整理'}){
+%>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="c-panel">
+            <div class="c-panel-body">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">cpu名称</label>
+                            <div class="layui-input-inline" style="width: 150px;">
+                                <input name="name" placeholder="cpu名称"
+                                       class="layui-input">
+                            </div>
+                            <!--<label class="layui-form-label">股票名称</label>
+                            <div class="layui-input-inline" style="width: 150px;">
+                                <input name="name" placeholder="股票名称" class="layui-input">
+                            </div>-->
+                        </div>
+                    </div>
+                    <div class="searchTable">
+                        <button class="layui-btn" lay-filter="cpu" lay-submit>
+                            搜索</button>
+                    </div>
+                </form>
+                <table id="cpuTable" lay-filter="cpu"></table>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+                <script type="text/html" id="operateTool">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs"
+                       lay-event="clone">克隆</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['fly', 'table', 'form'], function () {
+        var fly = layui.fly, table = layui.table, form = layui.form;
+        if(layui.cache.user.role != 1){
+            $('#headToolbar').hide()
+            $('#operateTool').hide()
+        }
+        table.render({
+            id: 'cpuReload',
+            elem: '#cpuTable'
+            , url: '/cpu/list/'
+            , toolbar: '#headToolbar'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+            , page: true
+            , cols: [[
+                {field: 'name', title: '名称', width: 120, sort: true},
+                {field: 'basicPinlv', title: '基础频率', width: 140, sort: true ,templet: function(d){
+                        return d.basicPinlv+"GHz"
+                    }},
+                {field: 'ruiPinlv', title: '睿频', width: 140, sort: true,templet: function(d){
+                        return d.ruiPinlv+"GHz"
+                    }},
+                {field: 'superPinlv', title: '超频', width: 140, sort: true,templet: function(d){
+                        return d.superPinlv+"GHz"
+                    }},
+                {field: 'coreNum', title: '核心数', width: 140, sort: true},
+                {field: 'threadNum', title: '线程数量', width: 140, sort: true},
+                {field: 'ludashiScore', title: '鲁大师分数', width: 140, sort: true},
+                {field: 'sdmarkScore', title: '3dmark分数', width: 140, sort: true},
+                {field: 'power', title: '瓦数', width: 140, sort: true,templet: function(d){
+                        return d.power+"W"
+                    }},
+                {field: 'nami', title: '纳米', width: 140, sort: true,templet: function(d){
+                        return d.power+"nm"
+                    }},
+                {field: 'mainBoard', title: '推荐主板', width: 140, sort: true},
+                {field: 'memoryType', title: '内存类型', width: 140, sort: true},
+                {field: 'interfaceType', title: '接口类型', width: 140, sort: true},
+                {field: 'extraInfo', title: '额外信息', width: 140, sort: true},
+                {fixed: 'right', width:150, align:'center', toolbar:
+                        '#operateTool'}
+            ]]
+        });
+        table.on('toolbar(cpu)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    location.href = '/cpu/add'
+                    break;
+            }
+        });
+        table.on('tool(cpu)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个cpu么', function (index) {
+                    fly.json('/cpu/delete?id=' + data.id, {}, function
+                        (res) {
+                        layer.msg('删除成功！');
+                        table.reload('cpuReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'clone') {
+                location.href = '/cpu/add?cloneId='+data.id
+            }
+        });
+    });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

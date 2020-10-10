@@ -1,0 +1,148 @@
+<%
+layout("/common/_fq_layout.html",{title:'新增cpu'}){
+%>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="c-panel">
+            <div class="c-panel-body">
+                <form class="layui-form layui-form-pane"
+                      action="${ctxPath}/cpu/save" method="post"
+                      onsubmit="return false">
+                    <div class="layui-form-item">
+                        <div class="layui-col-md11">
+                            维护cpu信息
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">cpu名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" value="${cpu.name!}" name="name"
+                                   required
+                                   lay-verify="required" placeholder="cpu名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">基础频率</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.basicPinlv!}" name="basicPinlv" required
+                               lay-verify="required" placeholder="基础频率" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">核心数</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.coreNum!}" name="coreNum" required
+                               lay-verify="required" placeholder="核心数" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">线程数</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.threadNum!}" name="threadNum" required
+                               lay-verify="required" placeholder="线程数" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">鲁大师跑的分数</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.ludashiScore!}" name="ludashiScore" required
+                               lay-verify="required" placeholder="鲁大师跑的分数" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">3dmark的分数</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.sdmarkScore!}" name="sdmarkScore" required
+                               lay-verify="required" placeholder="3dmark的分数" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">功率</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.power!}" name="power" required
+                               lay-verify="required" placeholder="功率" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">纳米</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.nami!}" name="nami" required
+                               lay-verify="required" placeholder="纳米" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">睿频</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.ruiPinlv!}" name="ruiPinlv" required
+                               lay-verify="required" placeholder="睿频" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">超频</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.superPinlv!}" name="superPinlv" required
+                               lay-verify="required" placeholder="超频" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">推荐主板</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.mainBoard!}" name="mainBoard" required
+                               lay-verify="required" placeholder="推荐主板" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">内存类型</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.memoryType!}" name="memoryType" required
+                               lay-verify="required" placeholder="内存类型" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">接口类型</label>
+                        <div class="layui-input-block">
+                        <input type="text" value="${cpu.interfaceType!}" name="interfaceType" required
+                               lay-verify="required" placeholder="接口类型" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <textarea name="extraInfo" class="layui-textarea"
+                                  placeholder="额外信息">${cpu.extraInfo!}</textarea>
+                    </div>
+                    <div class="layui-form-item">
+                        <button lay-submit lay-filter="cpu"
+                                class="fabiao layui-btn layui-btn-normal fq-right">发表</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        var fly = layui.fly, table = layui.table, form = layui.form;
+        form.on('submit(cpu)', function (data) {
+            var action = $(data.form).attr('action');
+            var loadIndex = $.modal.loading(1)
+            $.operate.json(action, data.field, function(res){
+                layer.msg("新增成功！");
+                $.modal.closeLoading(loadIndex);
+                location.href = "${ctxPath}/cpu"
+            },{
+                error:function () {
+                    $.modal.closeLoading(loadIndex);
+                }
+            });
+            return false;
+        });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

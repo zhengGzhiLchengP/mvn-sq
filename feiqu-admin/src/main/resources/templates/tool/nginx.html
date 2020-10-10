@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 white-bg">
+            <div id="" class="detail-box">
+                <div>
+                    deny.conf
+                    my.conf
+                    nginx.conf
+                    realip.conf
+                    robot.conf
+                    upstream.conf
+                </div>
+                <label>配置文件名称</label><input id="configFileName" class="layui-input" placeholder="配置文件名称" value="nginx.conf">
+                <button id="edit-nginx-conf" class="layui-btn">编辑配置文件</button>
+                <button id="nginx-reload" class="layui-btn">nginx重启</button>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="detail-box">
+                        <div>
+                            /home/chenweidong/feiqu-admin/jartemp/BOOT-INF/classes,
+                            /home/chenweidong/feiqu/jartemp/BOOT-INF/classes
+                        </div>
+                        <label>父级目录</label><input class="layui-input" name="staticDic" placeholder="父级目录" value="/root/static"/>
+                        <label>关键词</label><input class="layui-input" name="keyword" placeholder="关键词过滤" value=""/>
+                        <button class="layui-btn show-dic">展示目录下所有文件</button>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div>
+                        <label>目标替换路径</label><input class="layui-input" id="tihuan-path">
+                        <button id="tihuan-btn" class="layui-btn">开始替换</button>
+                    </div>
+                    <hr>
+                    <div id="dics" style="overflow-y: scroll;height: 500px">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script>
+    var url = '/tool/nginx',nginxLocation = '${nginxLocation!}'
+    excuteUrl = '/tool/deploy/excute';
+    layui.use(['upload','layer','fly','form'], function(){
+        var layer = layui.layer,upload=layui.upload,fly=layui.fly,device=layui.device(),form=layui.form,configFileName='';
+        $('#nginx-reload').on('click',function () {
+            var data = {
+                command:'/usr/local/nginx/sbin/nginx -s reload',
+                dict:'/usr/local/nginx/sbin/'
+            }
+            fly.json(excuteUrl,data,function () {
+                $.modal.msgSuccess("重启nginx成功")
+            })
+        })
+        upload.render({
+            elem: '#tihuan-btn'
+            ,url: '/tool/nginx/tihuanFile'
+            ,data: {
+                path: function (){
+                    return $('#tihuan-path').val()
+                }
+            }
+            ,done: function(res, index, upload){ //上传后的回调
+                $.modal.msgSuccess('替换成功')
+            }
+            ,accept: 'file' //允许上传的文件类型
+        })
+        $('.show-dic').on('click',function () {
+            var data = {
+                staticDic:$('input[name="staticDic"]').val(),
+                keyword:$('input[name="keyword"]').val()
+            }
+            fly.json(url+"/fileTree",data,function (res) {
+                var ht = '<ul>'
+                layui.each(res.data,function (index, item) {
+                    ht+='<li lay-data="'+item.path+'">'+item.path+'<button class="layui-btn editSingle">编辑</button>' +
+                        '<button class="layui-btn tihuan">替换路径</button></li>'
+                })
+                ht+='</ul>'
+                $('#dics').html(ht)
+                $('.editSingle').on('click',function () {
+                    var path = $(this).parent().attr('lay-data');
+                    dealFileStr(path);
+                })
+                $('.tihuan').on('click',function () {
+                    var path = $(this).parent().attr('lay-data');
+                    $('#tihuan-path').val(path)
+                })
+
+            })
+        })
+        function dealFileStr(path){
+            fly.json(url+'/readFileStr', {path:path}, function(res){
+                layer.open({
+                    type: 1
+                    , id: 'fq_nginxconf'
+                    ,maxmin: true
+                    , title: '编辑配置文件:'+path
+                    , area: [ '800px', $(window).height() - 50+'px']
+                    , content: ['<ul class="layui-form" style="margin: 20px;">'
+                        , '<input type="hidden" name="path" value="'+path+'"/>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="">nginx配置文件</label>'
+                        , '<textarea rows="17" required name="nginxConf" lay-verify="required" placeholder="nginx配置文件"  class="layui-textarea">'+res.data+'</textarea>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<div class="layui-input-block">'
+                        , '<button type="button" lay-submit lay-filter="nginxConf" class="layui-btn">保存</button>'
+                        , '</div>'
+                        , '</li>'
+                        , '</ul>'].join('')
+                    , success: function (layero, index) {
+                        form.on('submit(nginxConf)', function (data) {
+                            fly.json(url+'/fileStr/save', data.field, function (res) {
+                                layer.close(index);
+                                layer.msg('保存成功！', {
+                                    icon: 1
+                                })
+                            });
+                            return false;
+                        })
+                    }
+                });
+            });
+        }
+        $('#edit-nginx-conf').on('click',function () {
+            configFileName = $('#configFileName').val();
+            var path = nginxLocation+"/conf/"+configFileName;
+            dealFileStr(path);
+        })
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${keyword!}的搜索结果</title>
+    <%include("/common/_head.html"){}%>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    搜索记录
+                </div>
+                <div class="c-panel-body">
+                    <%for(var keyword in keywords!){%>
+                    <span class="layui-badge layui-bg-green"><a href="${ctxPath}/search/index?keyword=${keyword}">${keyword}</a></span>
+                    <%}%>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">想法</div>
+                <div class="c-panel-body">
+                    <%for(var article in thoughts!){%>
+                    <div class="news-single">
+                        <a href="/thought/${article.id}" target="_blank">
+                            <div class="">
+                                <h2>${article.thoughtContent}</h2>
+                                <time>${article.createTime,'yyyy-MM-dd'}</time>
+                            </div>
+                        </a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">文章</div>
+                <div class="c-panel-body">
+                    <%for(var article in articleList!){%>
+                    <div class="news-single">
+                        <a href="/article/${article.id}" target="_blank">
+                            <div class="">
+                                <h2>${article.articleTitle}</h2>
+                                <time>${article.createTime,'yyyy-MM-dd'}</time>
+                            </div>
+                        </a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">新闻</div>
+                <div class="c-panel-body">
+                    <%for(var news in fqNewsList!){%>
+                    <div class="news-single">
+                        <a href="/fqNews/detail/${news.id}" target="_blank">
+                            <div class="news-body">
+                                <h2>${news.title}</h2>
+                                <time>${news.pTime} 来自${news.source}</time>
+                            </div>
+                        </a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">话题</span>
+                </div>
+                <div class="c-panel-body">
+                    <%for(var topic in fqTopicList! ){%>
+                    <div class="news-single">
+                        <a href="/fqTopic/detail/${topic.id}" target="_blank">
+                            <div class="news-body">
+                                <h2>${topic.title}</h2>
+                                <time>来自${topic.type}</time>
+                            </div>
+                        </a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">广告位</div>
+                <div class="c-panel-body">
+                    <%for(var ad in advertisements!){%>
+                    <div class="ad-single">
+                        <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html"){}%>
+<script>
+    var keyword = '${keyword}';
+    $('h2').each(function (e) {
+        var html = $(this).html();
+        $(this).html(html.replace(keyword, '<span class="layui-bg-red">' + keyword + '</span>'))
+    })
+</script>
+</html>

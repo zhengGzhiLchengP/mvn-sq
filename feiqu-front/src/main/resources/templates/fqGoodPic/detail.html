@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <%include("/common/_head.html"){}%>
+    <title></title>
+    <style type="text/css">
+        .t-content a{
+            color: #01AAED;
+        }
+        .thought-pic img{
+            max-width: 32%;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container layui-clear topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-body photos">
+                   <div id="good-imgs">
+                   </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">广告位</div>
+                <div class="c-panel-body">
+                    <%for(var ad in advertisements!){%>
+                    <div class="ad-single">
+                        <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    var goodPic = ${goodPic!''};
+    layui.use(['layer','fly','face','flow'], function () {
+        var layer = layui.layer,fly=layui.fly,face=layui.face,flow=layui.flow;
+        var imgs = goodPic.lowQuaPicUrlList,highImgs = goodPic.picUrlList;
+        var imgHtml = '';
+        layui.each(imgs, function(index, item){
+            imgHtml += '<li><img data-cursor="big" layer-src="'+highImgs[index]+'" lay-src="'+item+'"><hr></li>';
+        })
+        var html1 = ['<ul class="all-pic" style="margin: 20px;text-align: center">' ,
+            '<div>',goodPic.title,'</div>'
+            ,'<div>',goodPic.gmtCreate,'</div>'
+            ,imgHtml
+        ,'</ul>'].join('')
+        $('#good-imgs').html(html1)
+        layer.photos({
+            photos: '.photos'
+            ,zIndex: 9999999999
+            ,anim: 5
+        });
+        $('title').html(goodPic.title);
+        flow.lazyimg();
+    })
+</script>
+</html>

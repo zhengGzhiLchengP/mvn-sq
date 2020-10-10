@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="logininfor-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>ip：</label><input type="text" name="ip"/>
+                        </li>
+                        <li>
+                            <label>referer：</label><input type="text" name="referer"/>
+                        </li>
+                        <li>
+                            <label>url：</label><input type="text" name="url"/>
+                        </li>
+                        <li class="select-time">
+                            <label>创建时间： </label>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="beginTime"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="endTime"/>
+                        </li>
+                        <li>
+                            <label>爬虫方式： </label>
+                            <select name="spiderType">
+                                <option value="">所有</option>
+                                <option value="0">没有爬虫</option>
+                                <option value="1">百度爬虫</option>
+                                <option value="2">google爬虫</option>
+                                <option value="3">bing爬虫</option>
+                                <option value="4">搜狗</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-danger btn-del disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="monitor:logininfor:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-danger" onclick="$.operate.clean()" shiro:hasPermission="monitor:logininfor:remove">
+                <i class="fa fa-trash"></i> 清空
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="monitor:logininfor:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+
+<%include("/common/_scripts.html"){}%>
+<script th:inline="javascript">
+    var datas = ${dict.getType('sys_common_status')};
+    var prefix = ctx + "monitor/nginxLog";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            cleanUrl: prefix + "/clean",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "id",
+            sortOrder: "desc",
+            modalName: "nginx访问日志",
+            escape: true,
+            showPageGo: true,
+            rememberSelected: true,
+            columns: [{
+                field: 'id',
+                checkbox: true
+            },
+                {
+                    field: 'ip',
+                    title: 'ip'
+                },
+                {
+                    field: 'localTime',
+                    title: '访问时间',
+                    sortable: true
+                },
+                {
+                    field: 'method',
+                    title: '方法'
+                },
+                {
+                    field: 'url',
+                    title: '访问地址'
+                },
+                {
+                    field: 'http',
+                    title: 'http'
+                },
+                {
+                    field: 'status',
+                    title: '状态'
+                },
+                {
+                    field: 'bytes',
+                    title: '字节',
+                },
+                {
+                    field: 'referer',
+                    title: 'referer'
+                },
+                {
+                    field: 'requestTime',
+                    title: '请求时间',
+                    sortable: true
+                },{
+                    field: 'userAgent',
+                    title: 'userAgent',
+                    sortable: true
+                },{
+                    field: 'spiderType',
+                    title: '爬虫方式',
+                    sortable: true
+                },{
+                    field: 'createTime',
+                    title: '创建时间',
+                    sortable: true
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

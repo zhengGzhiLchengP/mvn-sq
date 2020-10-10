@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>写一篇文章 -飞趣</title>
+    <style>
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix c-panel">
+    <div class="layui-row c-panel-body">
+        <form class="layui-form layui-form-pane" action="${ctxPath}/article/writeArticle" method="post" onsubmit="return false">
+            <div class="layui-form-item">
+                <div class="layui-col-md11">
+                    请开始你的表演（写作）
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">标题</label>
+                <div class="layui-input-inline">
+                    <input style="width: 400px;max-width: 100%" type="text" name="articleTitle" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                </div>
+                <button lay-submit lay-filter="articleform" class="fabiao layui-btn layui-btn-normal fq-right">发表</button>
+            </div>
+            <div class="layui-form-item">
+               <div class="layui-inline">
+                    <label class="layui-form-label">标签</label>
+                    <div class="layui-input-inline">
+                        <select name="label" lay-verify="">
+                            <option value="">请选择一个标签</option>
+                            <%for(var label in labels){%>
+                            <option value="${label.id}">${label.name}</option>
+                            <%}%>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">补充说明</label>
+                    <div class="layui-input-inline">
+                        <input name="tags" class="layui-input" placeholder="可不填">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">匿名发表</label>
+                    <div class="layui-input-inline">
+                        <input type="checkbox" name="anonymousSwitch" lay-skin="switch" lay-text="ON|OFF">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <textarea name="articleContent" class="layui-textarea" placeholder="开始你的写作吧~(暂时只支持最多45000个字符)"></textarea>
+            </div>
+        </form>
+        <div id="fq-editor">
+        </div>
+        <input id="uploadImg" type="file" style="display:none" accept="image/png, image/jpeg, image/gif" >
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
+<script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script>
+<script>
+        var layer = layui.layer
+            , form = layui.form
+            ;
+        tinymce.init({
+            selector: "textarea",
+            height: 450,
+            imagetools_cors_hosts: ['picsum.photos'],
+            language:'zh_CN',
+            plugins: 'print preview fullpage paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+            toolbar: 'undo redo wordcount | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+            image_advtab: true,
+            importcss_append: true,
+            menubar: 'file edit view insert format tools table tc help',
+            file_picker_callback: function (callback, value, meta) {
+                if (meta.filetype === 'file') {
+                    callback('https://www.google.com/logos/google.jpg', { text: 'My text' });
+                }
+                if (meta.filetype === 'image') {
+                    callback('https://www.google.com/logos/google.jpg', { alt: 'My alt text' });
+                }
+                if (meta.filetype === 'media') {
+                    callback('movie.mp4', { source2: 'alt.ogg', poster: 'https://www.google.com/logos/google.jpg' });
+                }
+            },
+            add_unload_trigger:false,
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            contextmenu: "link image imagetools table configurepermanentpen",
+            images_upload_url: '/api/upload/',
+            images_upload_handler: function (blobInfo, success, failure) {
+                var formData = new FormData();
+                formData.append("file", blobInfo.blob(),blobInfo.filename());
+                $.ajax({
+                    url: '/api/upload/',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (result) {
+                        if (result.code == "0000") {
+                            $.modal.msgSuccess('上传成功')
+                            success(result.data);
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                    }
+                });
+            }
+        });
+
+        form.on('submit(articleform)', function (data) {
+            var action = $(data.form).attr('action');
+            if(data.field.anonymousSwitch === 'on'){
+                data.field.anonymousSwitch = 1;
+            }else {
+                data.field.anonymousSwitch = 0;
+            }
+            data.field.articleContent = tinyMCE.activeEditor.getContent();
+            var loadIndex = $.modal.loading(1)
+            if(data.field.articleContent.length > 45000){
+                $.modal.msgWarning("文章内容不能超过45000！");
+                return
+            }
+            $.operate.json(action, data.field, function(res){
+                layer.msg("文章发表成功，文章进入审核阶段！");
+                $('.fabiao').addClass('disabled')
+                $.modal.closeLoading(loadIndex);
+                setTimeout(function () {
+                    tinyMCE.activeEditor.hide();
+                    tinyMCE.activeEditor.remove();
+                    location.href = "${ctxPath}/superGeek"
+                }, 1000)
+            },{
+                error:function () {
+                    $.modal.closeLoading(loadIndex);
+                    $('.fabiao').removeClass('disabled')
+                }
+            });
+            return false;
+        })
+</script>
+</html>

@@ -1,0 +1,220 @@
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">备注</label>
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input name="remark" placeholder="请输入备注" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="searchTable">
+                        <button class="layui-btn" lay-filter="websiteDirForm" lay-submit>搜索</button>
+                    </div>
+                </form>
+                <div>
+                    <button class="layui-btn" id="refreshAdvertisement">更新前端广告</button>
+                </div>
+                <table class="layui-hide" id="fqAdvertisementManage" lay-filter="fqAdvertisement"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                </script>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device();
+        $('#refreshAdvertisement').on('click', function () {
+            fly.json('https://www.f2qu.com/fqAdvertisement/update', function () {
+                layer.msg('广告更新成功')
+            })
+        })
+        form.on('submit(websiteDirForm)', function (data) {
+            var field = data.field;
+            table.reload('websiteDirReload', {
+                page: {
+                    curr: 1
+                }
+                , where: {
+                    name: data.field.siteName
+                }
+            });
+            return false;
+        });
+        table.render({
+            elem: '#fqAdvertisementManage'
+            , url: '/front/advertisement/list'
+            , toolbar: '#headToolbar'
+            , title: '网址数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'remark', title: '广告备注', width: 150, fixed: 'left', unresize: true, sort: true},
+                {field: 'picUrl', title: '广告图片地址', width: 200, fixed: 'left', unresize: true, sort: true},
+                {field: 'adHref', title: '广告跳转地址', width: 200, fixed: 'left', unresize: true, sort: true},
+                {field: 'position', title: '广告位置', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'gmtCreate', title: '创建时间', width: 160, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 150, align: 'center', toolbar: '#bar'}
+            ]]
+            , page: true
+            , response: {
+                statusCode: '0000',
+                msgName: 'message'
+            }
+            , id: 'fqAdvertisementReload'
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.list //解析数据列表
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(fqAdvertisement)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 1
+                        , id: 'fq_fqAdvertisementManage'
+                        , title: '新增广告'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">广告备注</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="remark" lay-verify="required" placeholder="广告备注" maxlength="100" class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">广告图片url</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="picUrl" lay-verify="url" placeholder="广告图片url" maxlength="100" class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">广告跳转链接</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="adHref" lay-verify="url" placeholder="广告跳转链接" maxlength="100" class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">广告位置</label>'
+                            , '<div class="layui-input-block">'
+                            , '<select required name="position" class="layui-input">'
+                            , '<option value="0">首页</option>'
+                            , '<option value="1">列表页</option>'
+                            , '<option value="2">详情页</option>'
+                            , '</select>'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="fqAdvertisementManage" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            form.render();
+                            form.on('submit(fqAdvertisementManage)', function (data) {
+                                fly.json('/front/advertisement/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('fqAdvertisementReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+            ;
+        });
+        //监听工具条
+        table.on('tool(fqAdvertisement)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个广告么', function (index) {
+                    fly.json('/front/advertisement/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('fqAdvertisementReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'edit') {
+                layer.open({
+                    type: 1
+                    , id: 'fqAdvertisement'
+                    , title: '编辑广告'
+                    , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                    , content: ['<ul class="layui-form" style="margin: 20px;">'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">广告备注</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="remark" lay-verify="required" placeholder="广告备注" maxlength="100" value="' + data.remark + '" class="layui-input">'
+                        , '<input type="hidden" name="id" value="' + data.id + '">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">广告图片地址</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="picUrl" lay-verify="url" placeholder="广告图片地址" maxlength="100" value="' + data.picUrl + '" class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">广告跳转链接</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="adHref" lay-verify="required" placeholder="广告跳转链接" maxlength="100" value="' + data.adHref + '" class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<div class="layui-input-block">'
+                        , '<button type="button" lay-submit lay-filter="website" class="layui-btn">保存</button>'
+                        , '</div>'
+                        , '</li>'
+                        , '</ul>'].join('')
+                    , success: function (layero, index) {
+                        form.on('submit(website)', function (data) {
+                            fly.json('/front/advertisement/save', data.field, function (res) {
+                                layer.close(index);
+                                layer.msg('保存成功！', {
+                                    icon: 1
+                                })
+                                table.reload('fqAdvertisementReload', {
+                                    page: {
+                                        curr: 1
+                                    }
+                                });
+                            });
+                            return false;
+                        })
+                    }
+                });
+            }
+        });
+    });
+</script>
+</html>

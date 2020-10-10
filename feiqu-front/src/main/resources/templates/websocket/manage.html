@@ -1,0 +1,119 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+%>
+<div class="fly-marginTop">
+    <div class="layui-row">
+        <div class="c-panel">
+            <div class="c-panel-body">
+                <input class="layui-input" id="pushAllMsg" placeholder="群发的消息内容">
+                <button class="pushAllMsg layui-btn">群发消息</button>
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <div class="c-panel">
+                <div class="c-panel-body">
+                    <button class="layui-btn black-list-show">黑名单列表</button>
+                    <input class="layui-input" id="black-ip" placeholder="要拉黑的ip">
+                    <button class="putBlack layui-btn layui-btn-danger">拉黑</button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <div class="c-panel">
+                <div class="c-panel-body">
+                    <input class="layui-input" id="remove-black-ip" placeholder="移除黑名单的ip">
+                    <button class="removeBlack layui-btn layui-btn-danger">移除黑名单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md12">
+            <div class="c-panel">
+                <div class="c-panel-body">
+                    <table id="wsManage" lay-filter="ws"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{user:user}){}%>
+</html>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table, fly = layui.fly, form = layui.form, device = layui.device();
+        $('.pushAllMsg').on('click', function () {
+            fly.json('/websocket/pushAllMessage', {msg: $('#pushAllMsg').val()}, function (res) {
+                $.modal.msgSuccess("群发成功！")
+            })
+        })
+        $('.black-list-show').on('click', function () {
+            fly.json('/websocket/blackList', {}, function (res) {
+                if (res.data.length > 0) {
+                    var content = '<ul>';
+                    layui.each(res.data, function (index, item) {
+                        content += '<li>' + item + '</li>'
+                    })
+                    content += '</ul>'
+                    $.modal.alertSuccess(content)
+                }
+            })
+        })
+        $('.putBlack').on('click', function () {
+            fly.json('/websocket/addToBlack', {ip: $('#black-ip').val()}, function (res) {
+                $.modal.msgSuccess("拉黑成功！")
+                $('#black-ip').val('')
+            })
+        })
+        $('.removeBlack').on('click', function () {
+            fly.json('/websocket/removeBlackList', {ip: $('#remove-black-ip').val()}, function (res) {
+                $.modal.msgSuccess("移除黑名单成功！")
+                $('#remove-black-ip').val('')
+            })
+        })
+        table.render({
+            elem: '#wsManage'
+            , url: '/wsLog/list/'
+            , parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+            , page: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 50, sort: true, fixed: 'left'}
+                , {field: 'requestCount', title: '建链次数', width: 120, sort: true}
+                , {field: 'bytespertcpreceive', title: '每次TCP接收字节数', width: 180}
+                , {field: 'decodeerrorcount', title: '解码异常次数', width: 150, sort: true}
+                , {field: 'duration', title: '统计了多久', width: 150}
+                , {field: 'durationtype', title: 'durationtype', width: 150}
+                , {field: 'formatedDuration', title: '积分', width: 150, sort: true}
+                , {field: 'handledBytes', title: '处理字节', width: 150, sort: true}
+                , {field: 'handledCostsPerPacket', title: '每个包处理时间', width: 150}
+                , {field: 'handledPacketCosts', title: '处理包消耗时间', width: 150, sort: true}
+                , {field: 'handledPackets', title: '处理业务包', width: 150, sort: true}
+                , {field: 'ip', title: '客户端ip', width: 150, sort: true}
+                , {field: 'packetsPerTcpReceive', title: '每个tcp接收的包', width: 150, sort: true}
+                , {field: 'receivedBytes', title: '上行字节', width: 150, sort: true}
+                , {field: 'receivedPackets', title: '上行业务包', width: 150, sort: true}
+                , {field: 'receivedTcps', title: '上行TCP包', width: 150, sort: true}
+                , {field: 'sentBytes', title: '下行字节', width: 150, sort: true}
+                , {field: 'sentPackets', title: '下行业务包', width: 150, sort: true}
+                , {field: 'start', title: '开始', width: 150, sort: true}
+            ]]
+        });
+    });
+</script>

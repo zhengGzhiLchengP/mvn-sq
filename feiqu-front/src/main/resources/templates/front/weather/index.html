@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>所有城市 -飞趣</title>
+    <style>
+        .hot-article li {
+            position: relative
+        }
+        .hot-article li a {
+            overflow: hidden;
+            max-width: 80%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .hot-article li em {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+        }
+
+        .news-single {
+            margin: 20px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #B3CC9C;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .news-single .news-body {
+            width: 50%;
+            color: #0C0C0C !important;
+        }
+
+        .news-single .news-body time {
+            position: absolute;
+            bottom: 0;
+            font-size: 16px;
+        }
+
+        .news-body img {
+            max-height: 100%;
+            max-width: 50%;
+        }
+
+        .ad-single {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">城市列表</span>
+                </div>
+                <div class="c-panel-body">
+                    <form class="layui-form" action="">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">城市名称</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="cityName" placeholder="请输入城市名称，然后回车" class="layui-input">
+                            </div>
+                        </div>
+                    </form>
+                    <%for(var city in cities){%>
+                    <div class="news-single">
+                        <div class="news-body">
+                            <a href="/weather/city/${city.cityNum}" target="_blank">
+                                    <span class="c-list-num">
+                                    <i class="iconfont icon-liulanyanjing" title="回复"></i>当前城市下的天气</span>
+                            </a>
+                            <h2>${city.cityName}</h2>
+                        </div>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <%include("/common/_advertisements.html"){}%>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer', 'laypage', 'fly'], function () {
+        var layer = layui.layer
+            , laypage = layui.laypage
+            , fly = layui.fly;
+    });
+</script>
+</html>

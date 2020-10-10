@@ -1,0 +1,71 @@
+<%
+layout("/common/_fq_layout.html",{title:'做一个金融大鳄 -飞趣社区'}){
+%>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="c-panel">
+            <div class="c-panel-title fly-filter">金融功能导航</div>
+            <div class="fly-panel-main">
+                <ul class="layui-row layui-col-space10 fly-shortcut">
+                    <li class="layui-col-sm3 layui-col-xs4">
+                        <a href="/finance/knowledge"><i class="layui-icon layui-icon-read"></i><cite>金融知识</cite></a>
+                    </li>
+                    <li class="layui-col-sm3 layui-col-xs4">
+                        <a href="/finance/stock"><i class="layui-icon layui-icon-file"></i><cite>股票查询</cite></a>
+                    </li>
+                    <li class="layui-col-sm3 layui-col-xs4">
+                        <a href="/finance/corporation"><i class="layui-icon layui-icon-file"></i><cite>公司查询</cite></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="c-panel">
+            <div class="c-panel-body">
+                <%if(isNotEmpty(stockHl)){%>
+                <div>阴历：${stockHl.yinli}</div>
+                <div>适宜：${stockHl.suit}</div>
+                <div>技术数据：${stockHl.techData}</div><hr class="layui-bg-red">
+                <div><blockquote class="layui-elem-quote layui-quote-nm"><span class="layui-badge">资金面</span><br>${stockHl.fundContent}</blockquote></div><hr class="layui-bg-red">
+                <div><blockquote class="layui-elem-quote layui-quote-nm"><span class="layui-badge">摘要</span><br>${stockHl.summary}</blockquote></div>
+                <%}%>
+            </div>
+        </div>
+        <div class="c-panel">
+            <div class="c-panel-title">
+                随机金融知识
+            </div>
+            <div class="c-panel-body">
+                <ul class="c-list2">
+                    <%for(var know in list!){%>
+                    <li>
+                        <div class="question">问题：${know.question}
+                        </div>
+                        <span class="layui-badge">${know.tags}</span>（${know.gmtCreate,'yyyy-MM-dd'}）
+                        <div class="answer">答案：${know.answer}</div>
+                        <div></div>
+                    </li>
+                    <%}%>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['fly'], function () {
+        var fly = layui.fly;
+        $('.question,.answer').each(function () {
+            var othis = $(this), html = othis.html();
+            othis.html(fly.content(html));
+        })
+    });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

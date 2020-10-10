@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%include("/common/_head.html"){}%>
+<title>友情链接 -飞趣</title>
+<style>
+    .hot-article li{position: relative}
+    .hot-article li a{
+        overflow: hidden;
+        max-width: 80%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
+    .hot-article li em {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 12px;
+        color: #999;
+        font-style: normal;
+    }
+    .news-single {
+        margin: 20px 0;
+        padding: 10px 0;
+        border-bottom: 1px solid #B3CC9C;
+        position: relative;
+        min-height: 200px;
+    }
+    .news-single .news-body{
+        width: 50%;
+        color: #0C0C0C !important;
+    }
+    .news-single .news-body time{
+        position: absolute;
+        bottom: 0;
+        font-size: 16px;
+    }
+    .news-body img{
+        max-height: 100%;
+        max-width: 50%;
+    }
+    .ad-single {
+        margin: 20px 0;
+    }
+</style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <div class="title-first">相关友情链接</div>
+                </div>
+                <div class="c-panel-title">被围观${watchCount}次,申请友链请联系管理员！</div>
+                <div class="c-panel-body">
+                    <ul style="list-style: disc;line-height:30px">
+                        <%for(var f in fqFriendLinks!){%>
+                        <li><a class="c-fly-link" target="_blank" href="${f.linkUrl}">${f.linkName}</a></li>
+                        <%}%>
+                    </ul>
+                    <p>官方交流群:&nbsp;<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=ca03296d1e274d6333a6c77d0b8fe5128ff7f650c4be98a88834d1506fa1f9b1"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="飞趣社区官方交流群" title="飞趣社区官方交流群"></a></p>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <div class="title-first">关于</div>
+                </div>
+                <div class="c-panel-body">
+                    <div class="layui-tab layui-tab-card c-panel" >
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">关于此网站</li>
+                            <li>关于作者</li>
+                        </ul>
+                        <div class="layui-tab-content" style="min-height: 550px;">
+                            <div class="layui-tab-item layui-show">
+                                <div class="content">
+                                    飞趣社区 网站的名称 <br>
+                                    首先要感谢贤心提供这么好的前端模板 layui 帮助了我很多<br>
+                                    另外我一直想写个自己的网站装装逼，然而各种约束一直没有做成，比如钱？别人的眼中认为的无意义，又赚不到钱，做它干什么？<br>
+                                    世界本该简单。<br>
+                                    <hr>
+                                    人如果没有梦想，和咸鱼有什么区别。
+                                </div>
+                            </div>
+                            <div class="layui-tab-item content">
+                                <p>93年boy一只</p>
+                                <p>java开发者。。</p>
+                                <p>工作闲暇搞的第一个作品 为了更好的自己</p>
+                                <p>联系方式 </p>
+                                <p>邮箱：573047307@qq.com</p>
+                                <p>码云：https://gitee.com/lovecwd/events</p>
+                                <p>个人qq：573047307</p>
+                                <p>个人微信：<img width="300" src="https://cwd-res2.oss-cn-shanghai.aliyuncs.com/2020/01/15/16112416.jpeg-mobile"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">广告位</div>
+                <div class="c-panel-body">
+                    <%for(var ad in advertisements){%>
+                    <div class="ad-single">
+                        <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer', 'laypage','fly'], function(){
+        var layer = layui.layer
+            ,laypage=layui.laypage
+            ,fly=layui.fly;
+    });
+</script>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>更换背景图片 -飞趣</title>
+    <style>
+        .site-mobile .c-user-main>.layui-nav{left:0}
+        .home-main{margin-left:200px}
+        .detail-box{min-height: 500px;}
+        .recommend-backImgs li img{
+            height: 150px;
+            cursor: pointer;
+        }
+        .confirm-block{
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container layui-clear topToFix home-all c-user-main">
+    <%include("/common/_user_menu.html",{user:user}){}%>
+    <div class="home-main layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="c-panel detail-box">
+                <a class="layui-btn layui-btn-sm" href="javascript:;" id="recommendToOfficial">向官方推荐自己的背景图片</a>
+                <a class="layui-btn layui-btn-sm" href="https://www.zhihu.com/question/301773532/answer/535108073" id="" target="_blank">素材地址</a>
+                <hr class="layui-bg-green">
+                <form class="layui-form" action="${ctxPath}/bgImg/update" method="post">
+                    <div class="layui-upload-drag" id="uploadContainer">
+                        <a id="selectfiles" href="javascript:void(0);" class="layui-btn layui-btn-normal">选择背景图片</a>
+                        <a id="postfiles" href="javascript:void(0);" class="layui-btn">开始上传</a>
+                        <button class="layui-btn" lay-submit lay-filter="bgImgForm">确认使用</button>
+                    </div>
+                    <div id="uploadProgress" class="c-text-center">--上传进度展示--</div>
+                    <div>
+                        <img  class="layui-upload-img" id="picUrl" src="">
+                    </div>
+                    <input name="picUrl" type="hidden" value="">
+                </form>
+                <hr class="layui-bg-green">
+                <blockquote class="layui-elem-quote">历史背景图片</blockquote>
+                <div class="recommend-backImgs layui-clear">
+                    <ul class="layui-row layui-col-space5">
+                        <%for(var imgUrl in historyUrlList!){%>
+                        <li class="layui-col-md4">
+                            <img src="${imgUrl}">
+                        </li>
+                        <%}%>
+                    </ul>
+                </div>
+                <hr class="layui-bg-green">
+                <blockquote class="layui-elem-quote">或者选择以下推荐的背景图片</blockquote>
+                <hr class="layui-bg-green">
+                <div class="recommend-backImgs layui-clear">
+                    <ul class="layui-row layui-col-space5">
+                        <%for(var img in imgList){%>
+                        <li class="layui-col-md4">
+                            <img src="${img.imgUrl}">
+                        </li>
+                        <%}%>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="site-tree-mobile layui-hide"><i class="layui-icon">&#xe602;</i></div>
+<div class="site-mobile-shade"></div>
+<%include("/common/_footor.html"){}%>
+</body>
+<script src="https://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="${ctxPath}/layui/layui.all.js"></script>
+<script src="${ctxPath}/js/plupload.full.min.js"></script>
+<!--<script src="${ctxPath}/js/pic_upload_oss.js?v=${VERSION}"></script>-->
+
+<script>
+    layui.cache.user = {username: '${user.nickname!}', userId:${user.id!0}, icon: '${user.icon!}'};
+    layui.cache.domainUrl = '${DOMAIN_URL!}';
+    layui.config({
+        version: "${LAYUI_VERSION}"
+        , base: '${ctxPath}/lay/modules/fly/'
+    }).extend({
+        fly: 'cool',
+        fileUtil: 'fileUtil'
+    });
+</script>
+<script>
+    layui.use(['layer', 'laypage', 'fly', 'upload', 'form', 'flow', 'fileUtil', 'element'], function () {
+        var layer = layui.layer, form = layui.form, fly = layui.fly, flow = layui.flow, fileUtil = layui.fileUtil,
+            element = layui.element;
+        form.on('submit(bgImgForm)', function(data){
+            var action = $(data.form).attr('action');
+            fly.json(action, data.field, function(res){
+                layer.msg('背景更新成功')
+                $('.c-skin-container').css('background-image','url('+res.data+')')
+            });
+            return false;
+        });
+        $('.recommend-backImgs li').on('click',function () {
+            var imgUrl = $(this).children('img').attr('src');
+           layer.confirm("确认使用这张背景图片吗？",{icon: 3, title:'提示'},function (index) {
+               fly.json('/bgImg/update', {'picUrl':imgUrl}, function(res){
+                   layer.msg('背景更新成功')
+                   $('.c-skin-container').css('background-image','url('+imgUrl+')')
+               });
+           })
+        })
+        $('#recommendToOfficial').on('click',function () {
+            fly.json('/bgImg/recommend',{}, function(res){
+                layer.msg('消息已经发送给官方人员，待官方人员回复')
+            });
+        })
+
+        var uploader = new plupload.Uploader({
+            runtimes: 'html5,flash,silverlight,html4',
+            browse_button: 'selectfiles',
+            url: 'http://oss.aliyuncs.com',
+            filters: {
+                mime_types: [
+                    {title: "图片文件", extensions: "jpg,gif,png,jpeg,bmp"}
+                ],
+                max_file_size: '2mb',
+                prevent_duplicates: true
+            },
+            init: {
+                PostInit: function () {
+                    document.getElementById('postfiles').onclick = function () {
+                        fileUtil.set_upload_param(uploader, '', false);
+                        return false;
+                    };
+                },
+                FilesAdded: function (up, files) {
+                    plupload.each(files, function (file) {
+                        $('#uploadProgress').html('<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ')<b></b></div>'
+                            + '<div class="layui-progress layui-progress-big" lay-showPercent="true" lay-filter="progress">' +
+                            '<div class="layui-progress-bar" lay-percent="0%">' +
+                            '<span class="layui-progress-text">0%</span>' +
+                            '</div></div>');
+                    });
+                },
+                BeforeUpload: function (up, file) {
+                    fileUtil.set_upload_param(up, file.name, true);
+                },
+                UploadProgress: function (up, file) {
+                    element.progress('progress', file.percent + '%');
+                },
+                FileUploaded: function (up, file, info) {
+                    var fileUrl = fileUtil.get_uploaded_object_name(file.name);
+                    $('input[name="picUrl"]').val(fileUrl);
+                    $("#picUrl").attr('src', fileUrl);
+                    console.log(info);
+                    if (info.status !== 200) {
+                        console.error(info.response);
+                    }
+                },
+                Error: function (up, err) {
+                    if (err.code === -600) {
+                        layer.msg('选择的文件太大了', {icon: 5});
+                    } else if (err.code === -601) {
+                        layer.msg('选择的文件后缀不对', {icon: 5});
+                    } else if (err.code === -602) {
+                        layer.msg('这个文件已经上传过一遍了', {icon: 5});
+                    } else {
+                        layer.msg("Error xml:" + err.response, {icon: 5});
+                    }
+                }
+            }
+        });
+        uploader.init();
+    });
+</script>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head><%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md6">
+                <div class="c-panel-title">
+                    CPU
+                </div>
+                <div class="c-panel-body">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>属性</th>
+                            <th>值</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>核心数</td>
+                            <td>${server.cpu.cpuNum}</td>
+                        </tr>
+                        <tr>
+                            <td>用户使用率</td>
+                            <td>${server.cpu.used + '%'}</td>
+                        </tr>
+                        <tr>
+                            <td>系统使用率</td>
+                            <td>${server.cpu.sys + '%'}</td>
+                        </tr>
+                        <tr>
+                            <td>当前空闲率</td>
+                            <td>${server.cpu.free + '%'}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="layui-col-md6">
+                <div class="c-panel-title">
+                    内存
+                </div>
+                <div class="c-panel-body">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>属性</th>
+                            <th>内存</th>
+                            <th>JVM</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>总内存</td>
+                            <td>${server.mem.total + 'G'}</td>
+                            <td>${server.jvm.total + 'M'}</td>
+                        </tr>
+                        <tr>
+                            <td>已用内存</td>
+                            <td>${server.mem.used + 'G'}</td>
+                            <td>${server.jvm.used + 'M'}</td>
+                        </tr>
+                        <tr>
+                            <td>剩余内存</td>
+                            <td>${server.mem.free + 'G'}</td>
+                            <td>${server.jvm.free + 'M'}</td>
+                        </tr>
+                        <tr>
+                            <td>使用率</td>
+                            <td>${server.mem.usage}%</td>
+                            <td>${server.jvm.usage}%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="layui-col-md12">
+                <div class="c-panel-title">
+                    服务器信息
+                </div>
+                <div class="c-panel-body">
+                    <table class="layui-table">
+                        <tbody>
+                        <tr>
+                            <td>服务器名称</td>
+                            <td>${server.sys.computerName}</td>
+                            <td>操作系统</td>
+                            <td>${server.sys.osName}</td>
+                        </tr>
+                        <tr>
+                            <td>服务器IP</td>
+                            <td>${server.sys.computerIp}</td>
+                            <td>系统架构</td>
+                            <td>${server.sys.osArch}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="layui-col-md12">
+                <div class="c-panel-title">
+                    Java虚拟机信息
+                </div>
+                <div class="c-panel-body">
+                    <table class="layui-table">
+                        <tbody>
+                        <tr>
+                            <td>Java名称</td>
+                            <td>${server.jvm.name}</td>
+                            <td>Java版本</td>
+                            <td>${server.jvm.version}</td>
+                        </tr>
+                        <tr>
+                            <td>启动时间</td>
+                            <td>${server.jvm.startTime}</td>
+                            <td>运行时长</td>
+                            <td>${server.jvm.runTime}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="1">安装路径</td>
+                            <td colspan="3">${server.jvm.home}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="1">项目路径</td>
+                            <td colspan="3">${server.sys.userDir}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="layui-col-md12">
+                <div class="c-panel-title">
+                    磁盘状态
+                </div>
+                <div class="c-panel-body">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>盘符路径</th>
+                            <th>文件系统</th>
+                            <th>盘符类型</th>
+                            <th>总大小</th>
+                            <th>可用大小</th>
+                            <th>已用大小</th>
+                            <th>已用百分比</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%for(var sysFile in server.sysFiles!){%>
+                        <tr>
+
+                            <td>${sysFile.dirName}</td>
+                            <td>${sysFile.sysTypeName}</td>
+                            <td>${sysFile.typeName}</td>
+                            <td>${sysFile.total}</td>
+                            <td>${sysFile.free}</td>
+                            <td>${sysFile.used}</td>
+                            <td>${sysFile.usage}%</td>
+                        </tr>
+                        <%}%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    $(".modal").appendTo("body"), $("[data-toggle=popover]").popover(), $(".collapse-link").click(function () {
+        var div_ibox = $(this).closest("div.ibox"),
+            e = $(this).find("i"),
+            i = div_ibox.find("div.ibox-content");
+        i.slideToggle(200),
+            e.toggleClass("fa-chevron-up").toggleClass("fa-chevron-down"),
+            div_ibox.toggleClass("").toggleClass("border-bottom"),
+            setTimeout(function () {
+                div_ibox.resize();
+            }, 50);
+    }), $(".close-link").click(function () {
+        var div_ibox = $(this).closest("div.ibox");
+        div_ibox.remove()
+    });
+</script>
+</html>

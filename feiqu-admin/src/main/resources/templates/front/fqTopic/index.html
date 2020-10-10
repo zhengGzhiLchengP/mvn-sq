@@ -1,0 +1,112 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标题名称</label>
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input name="title" placeholder="请输入名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="searchTable">
+                        <button class="layui-btn" lay-filter="fqTopicForm" lay-submit>搜索</button>
+                    </div>
+                </form>
+
+                <table class="layui-hide" id="fqTopicManage" lay-filter="fqTopic"></table>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device();
+        form.on('submit(fqTopicForm)', function (data) {
+            var field = data.field;
+            table.reload('fqTopicReload', {
+                page: {
+                    curr: 1
+                }
+                , where: {
+                    title: data.field.title
+                }
+            });
+            return false;
+        });
+        table.render({
+            elem: '#fqTopicManage'
+            , url: '/front/fqTopic/list'
+            , toolbar: '#headToolbar'
+            , title: '网址数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 100, fixed: 'left', unresize: true, sort: true},
+                {field: 'title', title: '标题', width: 150, fixed: 'left', unresize: true, sort: true},
+                {field: 'source', title: '来源', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'commentCount', title: '评论数量', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'type', title: '类型', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'gmtCreate', title: '创建时间', width: 160, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 150, align: 'center', toolbar: '#bar'}
+            ]]
+            , page: true
+            , response: {
+                statusCode: '0000',
+                msgName: 'message'
+            }
+            , id: 'fqTopicReload'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(fqTopic)', function (obj) {
+            switch (obj.event) {
+
+            }
+            ;
+        });
+        //监听工具条
+        table.on('tool(fqTopic)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个话题么', function (index) {
+                    fly.json('/front/fqTopic/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('fqTopicReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'edit') {
+
+            }
+        });
+    });
+</script>
+</html>

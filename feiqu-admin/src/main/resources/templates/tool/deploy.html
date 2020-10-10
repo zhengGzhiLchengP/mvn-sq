@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="layui-upload detail-box">
+                <p>默认上传地址：${uploadPath!}</p>
+                <button type="button" class="layui-btn layui-btn-normal" id="testList">选择多文件</button>
+                <div class="layui-upload-list">
+                    <table class="layui-table">
+                        <thead>
+                        <tr><th>文件名</th>
+                            <th>大小</th>
+                            <th>状态</th>
+                            <th>上传地址</th>
+                            <th>操作</th>
+                        </tr></thead>
+                        <tbody id="demoList"></tbody>
+                    </table>
+                </div>
+                <button type="button" class="layui-btn" id="testListAction">开始上传</button>
+            </div>
+            <div class="new-contentarea tc detail-box">
+
+            </div>
+        </div>
+        <div class="col-sm-12 search-collapse">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label class="">命令名称：</label>
+                            <input required type="text" name="command" class="layui-input" value="ls -l"/>
+                        </li>
+                        <li>
+                            <label class="">文件夹：</label>
+                            <input required type="text" name="dict" class="layui-input" value="/home/chenweidong/feiqu-admin"/>
+                        </li>
+                        <li>
+                            <br>
+                            <a id="" class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                            <a id="command" class="btn btn-warning btn-rounded btn-sm"><i
+                                    class="fa fa-refresh"></i>&nbsp;执行</a>
+                        </li>
+                    </ul>
+                </div>
+        </div>
+        <div class="col-sm-12 white-bg">
+            <div id="excuteinfo"></div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script>
+var url = '/tool/deploy/excute'
+layui.use('upload', function(){
+    var upload = layui.upload;
+    var demoListView = $('#demoList')
+        ,uploadListIns = upload.render({
+        elem: '#testList'
+        ,url: '/tool/deploy/uploadFile'
+        ,accept: 'file'
+        ,multiple: true
+        ,auto: false
+        ,field:"deployfile"
+        ,bindAction: '#testListAction'
+        ,choose: function(obj){
+            var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+            obj.preview(function(index, file, result){
+                var tr = $(['<tr id="upload-'+ index +'">'
+                    ,'<td>'+ file.name +'</td>'
+                    ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+                    ,'<td>等待上传</td>'
+                    ,'<td>上传地址</td>'
+                    ,'<td>'
+                    ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                    ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                    ,'</td>'
+                    ,'</tr>'].join(''));
+
+                //单个重传
+                tr.find('.demo-reload').on('click', function(){
+                    obj.upload(index, file);
+                });
+
+                //删除
+                tr.find('.demo-delete').on('click', function(){
+                    delete files[index]; //删除对应的文件
+                    tr.remove();
+                    uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                });
+
+                demoListView.append(tr);
+            });
+        }
+        ,done: function(res, index, upload){
+            if(res.code == 0){ //上传成功
+                var tr = demoListView.find('tr#upload-'+ index)
+                    ,tds = tr.children();
+                tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                tds.eq(3).html(res.data);
+                tds.eq(4).html(''); //清空操作
+                return delete this.files[index]; //删除文件队列已经上传成功的文件
+            }
+            this.error(index, upload);
+        }
+        ,error: function(index, upload){
+            var tr = demoListView.find('tr#upload-'+ index)
+                ,tds = tr.children();
+            tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+            tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+        }
+    });
+});
+    $(function () {
+        var $excuteinfo = $('#excuteinfo');
+        var $command = $('input[name="command"]');
+        var $dict = $('input[name="dict"]');
+        // 按下ESC按钮关闭弹层
+        $('body', document).on('keyup', function(e) {
+            if (e.which === 13) {
+                excute()
+            }
+        });
+        function excute(){
+            var data = {
+                command:$command.val(),
+                dict:$dict.val()
+            }
+            var loadIndex;
+            $.ajax({
+                url: url,
+                type: 'post',
+                dataType: 'json',
+                data: data,
+                beforeSend: function () {
+                    loadIndex = $.modal.loading("正在处理中，请稍后...");
+                },
+                success: function(result) {
+                    $.modal.closeLoading(loadIndex)
+                    if (result.code == web_status.SUCCESS) {
+                        $.modal.msgSuccess(result.msg);
+                    }else {
+                        $.modal.msgWarning(result.msg);
+                    }
+                    $excuteinfo.html(result.data.replace(/\n/g, '<br>'));
+                }
+            })
+        }
+        $('#command').on('click',function () {
+           excute()
+        })
+    });
+</script>
+</body>
+</html>

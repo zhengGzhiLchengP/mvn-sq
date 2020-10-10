@@ -1,0 +1,43 @@
+<style>
+    body{
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div id="fqDate"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['table','fly','form','laydate'], function() {
+        var table=layui.table
+            ,fly=layui.fly,form=layui.form,laydate=layui.laydate,device=layui.device();
+        laydate.render({
+            elem: '#fqDate'
+            ,showBottom: false
+            ,calendar: true
+            ,theme: 'grid'
+            ,mark: {
+                '0-7-20': '生日'
+                ,'0-12-31': '跨年' //每年12月31日
+                ,'0-0-10': '工资' //每个月10号
+                ,'0-3-22': '结婚日' //每个月10号
+            }
+            ,position: 'static'
+        });
+    });
+</script>
+</html>

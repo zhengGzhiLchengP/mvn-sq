@@ -1,0 +1,21 @@
+<div class="c-head layui-bg-black">
+    <div class="layui-container">
+        <a class="home-logo" href="${ctxPath}/"><img src="${ctxPath}/img/c-logo39.png"></a>
+        <ul class="layui-nav c-nav layui-hide-xs">
+            <li class="layui-nav-item"><a target="_blank" href="https://www.f2qu.com">社区</a></li>
+        </ul>
+        <ul class="layui-nav cwd-nav-user">
+            <li class="layui-nav-item">
+                <a class="c-nav-icon" href="#">
+                    <cite id="head-nickname">${user.userName}</cite>
+                    <img id="head-user-icon" src="${user.avatar}">
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="${ctxPath}/system/user/profile" class="menuItem">个人中心</a></dd>
+                    <dd><a onclick="resetPwd()" class="menuItem">修改密码</a></dd>
+                    <dd><a href="${ctxPath}/logout">登出</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+</div>

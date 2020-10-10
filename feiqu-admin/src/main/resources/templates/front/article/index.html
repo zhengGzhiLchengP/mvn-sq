@@ -1,0 +1,113 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <table class="layui-hide" id="articleManage" lay-filter="article"></table>
+                <script type="text/html" id="barDemo">
+                    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="examine">审核</a>
+                    <a class="layui-btn layui-btn-xs" lay-event="recommend">推荐</a>
+                    <a class="layui-btn layui-btn-xs" lay-event="fanrecommend">取消推荐</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly'], function () {
+        var table = layui.table
+            , fly = layui.fly;
+        table.render({
+            elem: '#articleManage'
+            , url: '/article/list'
+            , toolbar: true
+            , title: '文章数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'articleTitle', title: '标题', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'userId', title: '用户id', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'createTime', title: '创建时间', width: 160, fixed: 'left', unresize: false, sort: true},
+                {field: 'delFlag', title: '标志', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'isRecommend', title: '推荐', width: 80, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 400, align: 'center', toolbar: '#barDemo', unresize: false}
+            ]]
+            , request: {
+                pageName: 'pageNum' //页码的参数名称，默认：page
+                , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            }
+            , response: {
+                msgName: 'message'
+            }
+            , id: 'articleReload'
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "count": res.total, //解析数据长度
+                    "data": res.rows //解析数据列表
+                };
+            }
+        });
+        //监听工具条
+        table.on('tool(article)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'detail') {
+                location.href = '/article/' + data.id;
+            } else if (obj.event === 'examine') {
+                fly.json('/article/examine?articleId=' + data.id, {}, function (res) {
+                    layer.msg('审核通过！');
+                    table.reload('articleReload', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                });
+            } else if (obj.event === 'del') {
+                layer.confirm('真的删除这篇文章么', function (index) {
+                    fly.json('/article/delete?articleId=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('articleReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'recommend') {
+                layer.confirm('真的推荐这篇文章么', function (index) {
+                    fly.json('/article/recommend/' + data.id,{type:1}, function (res) {
+                        layer.msg('推荐成功！');
+                        table.reload('articleReload', {
+                            page: {
+                                curr: 1 //重新从第 1 页开始
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'fanrecommend') {
+                layer.confirm('真的取消推荐这篇文章么', function (index) {
+                    fly.json('/article/recommend/' + data.id,{type:2}, function (res) {
+                        layer.msg('推荐成功！');
+                        table.reload('articleReload', {
+                            page: {
+                                curr: 1 //重新从第 1 页开始
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+    });
+</script>
+
+</html>

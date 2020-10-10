@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-post-edit" th:object="${post}">
+        <input id="postId" name="postId" type="hidden" value="${post.postId}"/>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">岗位名称：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="postName" id="postName" value="${post.postName}" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label ">岗位编码：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="postCode" id="postCode" value="${post.postCode}" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">显示顺序：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="postSort" id="postSort" value="${post.postSort}" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">岗位状态：</label>
+            <div class="col-sm-8">
+                <%for(var dict in dict.getType('sys_normal_disable')){%>
+                <div class="radio-box">
+                    <input type="radio" id="${dict.dictCode}" name="status" value="${dict.dictValue}"
+                           ${post.status==dict.dictValue?'checked':''}>
+                    <label for="${dict.dictCode}">${dict.dictLabel}</label>
+                </div>
+                <%}%>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <textarea id="remark" name="remark" class="form-control">${post.remark}</textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script type="text/javascript">
+    var prefix = ctx + "system/post";
+
+    $("#form-post-edit").validate({
+        onkeyup: false,
+        rules: {
+            postName: {
+                remote: {
+                    url: ctx + "system/post/checkPostNameUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "postId": function () {
+                            return $("input[name='postId']").val();
+                        },
+                        "postName": function () {
+                            return $.common.trim($("#postName").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            postCode: {
+                remote: {
+                    url: ctx + "system/post/checkPostCodeUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "postId": function () {
+                            return $("input[name='postId']").val();
+                        },
+                        "postCode": function () {
+                            return $.common.trim($("#postCode").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            postSort: {
+                digits: true
+            },
+        },
+        messages: {
+            "postCode": {
+                remote: "岗位编码已经存在"
+            },
+            "postName": {
+                remote: "岗位名称已经存在"
+            }
+        },
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-post-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

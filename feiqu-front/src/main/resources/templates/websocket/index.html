@@ -1,0 +1,95 @@
+<%
+layout("/common/_fq_layout.html",{title:'在线聊天 -找到你意气相投的朋友'}){
+%>
+<style>
+    .dialog {
+        height: 450px;
+        overflow-y: scroll;
+    }
+    .ws-content {
+        height: 100px;
+    }
+    .imgleft {
+        width: 45px;
+        height: 45px;
+        margin: 0;
+        border-radius: 2px;
+    }
+</style>
+<div class="layui-container">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <ul class="c-panel-body dialog">
+                </ul>
+            </div>
+            <textarea class="layui-textarea ws-content"></textarea>
+            <div class="detail-box c-text-center">
+                <button class="layui-btn send-btn">发送</button>
+                <button class="layui-btn clear-dialog">清屏</button>
+                <button class="layui-btn layui-btn-danger meinv">美女</button>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    时间:
+                    <time id="mtime"></time>
+                </div>
+                <div class="c-panel-body">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var date = new Date();
+    var wsUrl = '${WEBSOCKET_URL}',token='${token!}';
+    var dialogContainer = $('.dialog');
+    var $content = $('.ws-content');
+    $content.focus();
+    var msg = {
+        username: layui.cache.user.username,
+        userId: layui.cache.user.userId,
+        icon: layui.cache.user.icon,
+    }
+    $('.send-btn').on('click', function () {
+        msg.msgType = 2;
+        sendMsg();
+    })
+    $('.meinv').on('click', function () {
+        msg.msgType = 3;
+        $content.val("1");
+        sendMsg();
+    })
+    $('.clear-dialog').on('click', function () {
+        dialogContainer.html('')
+    })
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+        $.ajax({
+            url: '${ctxPath}/chatMsg/history',
+            data: {date: date.getTime()},
+            success: function (res) {
+                if (res.code == 0) {
+                    if (res.data) {
+                        var html = '';
+                        var list = res.data.list;
+                        layui.each(list, function (index, item) {
+                            html += '<li>' + item.msg + '|' + item.createTime + '</li>';
+                        })
+                    }
+                    dialogContainer.append(html);
+                    dialogContainer.scrollTop(dialogContainer[0].scrollHeight);
+                }
+            }
+        })
+    })
+
+</script>
+<script src="${ctxPath}/js/ws/tiows.js"></script>
+<script src="${ctxPath}/js/ws/imHandler.js?v=6"></script>
+<script src="${ctxPath}/js/ws/im.js?v=5"></script>
+<% } %>

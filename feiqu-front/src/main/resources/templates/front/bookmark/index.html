@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>管理我的书签 -飞趣</title>
+    <style>
+        .bookmark-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: start;
+            line-height: 50px;
+        }
+
+        .fly-layer-search input {
+            height: 75px;
+            line-height: 75px;
+            width: 500px;
+            padding: 0 15px;
+            font-size: 20px;
+            border: none 0;
+            background: none;
+        }
+
+        .bookmark-search {
+            display: inline-block;
+            vertical-align: top;
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .bookmark-search:hover {
+            color: #5FB878;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">我的所有书签</span>
+                    <a id="uploadBookmark" href="javascript:;" class="layui-btn">上传书签</a>
+                    <span>推荐使用chrome导出的书签进行导入，重新导入会覆盖之前的数据</span>
+                    <span class="BOOKMARK_search bookmark-search">
+                        <i class="layui-icon layui-icon-search"></i>
+                    </span>
+                    <span class="add">
+                        <i class="layui-icon layui-icon-add-1"></i>
+                    </span>
+                </div>
+                <div class="c-panel-body">
+                    <ul class="bookmark-list">
+                        <%for(var bookmark in bookmarks!){%>
+                        <li class="site">
+                            <a class="layui-btn layui-btn-normal" target="_blank" href="${bookmark.url}">${bookmark.name}</a>
+                            <button data-id="${bookmark.id}" class="layui-btn edit"><i
+                                    class="layui-icon layui-icon-edit"></i></button>
+                        </li>
+                        <%}%>
+                    </ul>
+
+                </div>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    var layer = layui.layer
+        , laypage = layui.laypage, form = layui.form
+        , fly = layui.fly, upload = layui.upload, device = layui.device();
+    $('.edit').click(function () {
+        var id = $(this).data('id');
+        layer.open({
+            type: 1
+            , id: 'fq_website'
+            , title: '编辑书签'
+            , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+            , content: ['<ul class="layui-form" style="margin: 20px;">'
+                , '<li class="layui-form-item">'
+                , '<label class="layui-form-label">权重</label>'
+                , '<div class="layui-input-block">'
+                , '<input required name="bOrder" lay-verify="required" placeholder="权重" value="" class="layui-input">'
+                , '<input type="hidden" name="id" value="' + id + '">'
+                , '</div>'
+                , '</li>'
+                , '<li class="layui-form-item">'
+                , '<div class="layui-input-block">'
+                , '<button type="button" lay-submit lay-filter="bookmark" class="layui-btn">保存</button>'
+                , '</div>'
+                , '</li>'
+                , '</ul>'].join('')
+            , success: function (layero, index) {
+                form.on('submit(bookmark)', function (data) {
+                    $.operate.json('/bookmark/save', data.field, function (res) {
+                        layer.close(index);
+                        layer.msg('保存成功！', {
+                            icon: 1
+                        })
+                        location.reload();
+                    });
+                    return false;
+                })
+            }
+        });
+    })
+    $('.add').click(function () {
+        layer.open({
+            type: 1
+            , id: 'fq_website'
+            , title: '新增书签'
+            , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+            , content: ['<ul class="layui-form" style="margin: 20px;">'
+                , '<li class="layui-form-item">'
+                , '<label class="layui-form-label">名称</label>'
+                , '<div class="layui-input-block">'
+                , '<input required name="name" lay-verify="required" placeholder="名称" value="" class="layui-input">'
+                , '</div>'
+                , '</li>'
+                , '<li class="layui-form-item">'
+                , '<label class="layui-form-label">网址</label>'
+                , '<div class="layui-input-block">'
+                , '<input required name="url" lay-verify="url" placeholder="url" value="" class="layui-input">'
+                , '</div>'
+                , '</li>'
+                , '<li class="layui-form-item">'
+                , '<label class="layui-form-label">权重</label>'
+                , '<div class="layui-input-block">'
+                , '<input required name="bOrder" lay-verify="required" placeholder="权重（权重越高越靠前）" value="" class="layui-input">'
+                , '</div>'
+                , '</li>'
+                , '<li class="layui-form-item">'
+                , '<div class="layui-input-block">'
+                , '<button type="button" lay-submit lay-filter="bookmark" class="layui-btn">保存</button>'
+                , '</div>'
+                , '</li>'
+                , '</ul>'].join('')
+            , success: function (layero, index) {
+                form.on('submit(bookmark)', function (data) {
+                    $.operate.json('/bookmark/save', data.field, function (res) {
+                        layer.close(index);
+                        layer.msg('保存成功！', {
+                            icon: 1
+                        })
+                        location.reload();
+                    });
+                    return false;
+                })
+            }
+        });
+    })
+    $('.BOOKMARK_search').on('click', function () {
+        layer.open({
+            type: 1
+            , title: false
+            , closeBtn: false
+            //,shade: [0.1, '#fff']
+            , shadeClose: true
+            , maxWidth: 10000
+            , skin: 'fly-layer-search'
+            , content: ['<form action="/bookmark">'
+                , '<input autocomplete="off" placeholder="搜索内容，回车跳转" type="text" name="q">'
+                , '</form>'].join('')
+            , success: function (layero) {
+                var input = layero.find('input');
+                input.focus();
+                searchAll(layero.find('form'));
+            }
+        })
+    });
+    //监听搜索引擎外部搜索
+    var searchAll = function (form) {
+        $(form).submit(function () {
+            var input = $(this).find('input[name="q"]')
+                , val = input.val();
+            if (val.replace(/\s/g, '') === '') {
+                return false;
+            }
+        });
+    };
+    upload.render({
+        elem: '#uploadBookmark'
+        , url: '/bookmark/upload/'
+        , size: 1000
+        , accept: "file"
+        , exts: 'html'
+        , done: function (res) {
+            if (res.code === '0000') {
+                $.modal.msgSuccess("导入成功");
+                location.reload();
+            } else {
+                layer.msg(res.message, {icon: 5});
+            }
+        }
+    });
+</script>
+</html>

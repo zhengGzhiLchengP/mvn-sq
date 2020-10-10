@@ -1,0 +1,48 @@
+<div class="c-head layui-anim-scaleSpring">
+    <div class="layui-container">
+        <a class="home-logo" href="${ctxPath}/"><img src="${ctxPath}/img/c-logo39.png"></a>
+        <ul class="layui-nav c-nav layui-hide-xs">
+            <li class="layui-nav-item"><a href="${ctxPath}/">首页</a></li>
+            <li class="layui-nav-item"><a href="${ctxPath}/thought">想法</a></li>
+            <li class="layui-nav-item"><a href="${ctxPath}/subscribe">订阅</a></li>
+            <li class="layui-nav-item"><a href="${ctxPath}/playground">发现</a></li>
+            <li class="layui-nav-item"><a href="${ctxPath}/fqFriendLink/index">友链</a></li>
+            <li class="layui-nav-item"><a href="${ctxPath}/cpu">cpu</a></li>
+            <li class="layui-nav-item"><input class="layui-input" id="searchIndex" placeholder="输入后按回车查询"/>
+                <i class="layui-icon layui-icon-search"></i></li>
+        </ul>
+        <ul class="layui-nav cwd-nav-user">
+            <%if(isLogin){ %>
+            <li class="layui-nav-item">
+                <a class="c-nav-icon" href="#">
+                    <cite id="head-nickname">${user.nickname}</cite>
+                    <img id="head-user-icon" src="${user.icon}">
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="${ctxPath}/u/set">基本设置</a></dd>
+                    <dd><a href="${ctxPath}/u/center">用户中心</a></dd><hr>
+                    <dd><a href="${ctxPath}/message/dialogs">我的私信</a></dd>
+                    <dd><a href="${ctxPath}/u/${user.id}">个人主页</a></dd>
+                    <dd><a href="${ctxPath}/u/logout">登出</a></dd>
+                </dl>
+            </li>
+            <%}else{%>
+            <li class="layui-nav-item layui-hide-xs"> <a href="/sns?t=qq" onclick="layer.msg('正在通过QQ登入', {icon:16, shade: 0.1, time:0})" title="QQ登入" class="iconfont icon-qq"></a> </li>
+            <!--<li class="layui-nav-item layui-hide-xs"> <a href="/sns?t=sina" onclick="layer.msg('正在通过微博登入', {icon:16, shade: 0.1, time:0})" title="微博登入" class="iconfont icon-weibo"></a> </li>-->
+            <!--<li class="layui-nav-item layui-hide-xs"> <a href="/sns?t=github" onclick="layer.msg('正在通过github登入', {icon:16, shade: 0.1, time:0})" title="github登入" class="fa fa-github" style="font-size: 25px"></a> </li>-->
+            <li class="layui-nav-item"> <a href="${ctxPath}/u/login">登录</a></li>
+            <li class="layui-nav-item"><a href="${ctxPath}/u/register">注册</a></li>
+            <%}%>
+        </ul>
+    </div>
+</div>
+<%
+var currentImgUrl = '';
+if(isLogin){
+currentImgUrl = c.currentBgImgUrl(user.id);
+}
+if(currentImgUrl == 'null'){
+currentImgUrl = '';
+}
+%>
+<div class="c-skin-container" style="background-image:url(${currentImgUrl});"></div>

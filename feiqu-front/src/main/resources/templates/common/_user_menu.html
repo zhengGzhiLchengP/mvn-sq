@@ -1,0 +1,19 @@
+<ul class="layui-nav layui-nav-tree layui-inline" lay-filter="demo" style="margin-right: 10px;">
+    <li class="layui-nav-item"><a href="${ctxPath}/u/upLevel"><i class="layui-icon layui-icon-snowflake"></i>升级之路</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/u/center"><i class="layui-icon">&#xe612;</i>用户中心</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/u/set"><i class="layui-icon">&#xe614;</i>基本设置</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/timeline/list"><i class="layui-icon">&#xe600;</i>时光轴</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/message/dialogs"><i class="layui-icon">&#xe611;</i>私信</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/thought/my"><i class="layui-icon layui-icon-face-smile"></i>我的想法</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/comment/my"><i class="layui-icon layui-icon-senior"></i>我的回复<span class="layui-badge-dot" style="position: relative; top: -5px; left: 5px;"></span></a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/article/my"><i class="layui-icon layui-icon-senior"></i>我的文章</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/music/my"><i class="layui-icon layui-icon-senior"></i>我的音乐</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/collection/find"><i class="layui-icon layui-icon-senior"></i>我的收藏</a></li>
+    <li class="layui-nav-item"><a href="${ctxPath}/bgImg/change"><i class="layui-icon layui-icon-senior"></i>更换背景</a></li>
+    <li class="layui-nav-item"><a href="javascript:;">我的Q豆：${user.qudouNum!0}粒</a></li>
+    <%if(user.role == 1){%>
+    <li class="layui-nav-item"><a href="${ctxPath}/admin/index" target="_blank"><i class="layui-icon layui-icon-home"></i>后台管理首页</a></li>
+    <%}%>
+</ul>
+<div class="site-tree-mobile layui-hide"><i class="layui-icon">&#xe602;</i></div>
+<div class="site-mobile-shade"></div>

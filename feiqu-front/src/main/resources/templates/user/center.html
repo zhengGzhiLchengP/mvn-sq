@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%include("/common/_head.html"){}%>
+    <title>用户中心 -飞趣</title>
+<style>
+    .NumberBoard{display:-webkit-box;display:-ms-flexbox;display:flex}
+    .NumberBoard-item{-webkit-box-flex:1;-ms-flex:1;flex:1}
+    .NumberBoard-itemValue{display:inline-block;font-size:18px;color:#1a1a1a;font-weight:600;font-synthesis:style}
+</style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container fly-marginTop topToFix c-user-main">
+    <%include("/common/_user_menu.html",{user:user}){}%>
+        <div class="c-panel fly-panel-user detail-box" style="padding-top:20px;">
+            <div class="NumberBoard c-panel-body">
+                <a class="NumberBoard-item" href="${ctxPath}/follow/following">
+                    <div class="c-text-center">
+                        <div>关注了</div>
+                        <strong class="NumberBoard-itemValue c-text-center">${followCount}</strong>
+                    </div>
+                </a>
+                <a class="NumberBoard-item" href="${ctxPath}/follow/fans">
+                    <div class="c-text-center">
+                        <div>粉丝数</div>
+                        <strong class="NumberBoard-itemValue ">${fansCount}</strong>
+                    </div>
+                </a>
+            </div>
+            <div class="fly-msg" style="margin-bottom: 20px;"> Hi，${user.nickname!}，你已是我们的正式社员。 </div>
+            <div class="layui-row layui-col-space20">
+                <div class="layui-col-md12">
+                    <div class="c-panel c-signin fly-panel-border">
+                        <div class="c-panel-title">
+                            <a href="javascript:;">签到</a>
+                            <span class="c-mid"></span>
+                            <a class="c-fly-link" href="javascript:;" id="LAY_signinHelp">说明</a>
+                            <span class="c-mid"></span>
+                            <a class="c-fly-link" href="javascript:;" id="LAY_signinTop">活跃榜</a>
+                        </div>
+                        <div class="sign-days-div"><span class="fly-signin-days"></span></div>
+                        <div class="fly-signin-main">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md12">
+                    <div class="c-panel fly-panel-border">
+                        <div class="c-panel-title">
+                            快捷方式
+                        </div>
+
+                        <div class="fly-panel-main">
+                            <ul class="layui-row layui-col-space10 fly-shortcut">
+                                <li class="layui-col-sm3 layui-col-xs4"><a href="/u/set/"><i class="layui-icon"></i><cite>修改信息</cite></a> </li>
+                                <li class="layui-col-sm3 layui-col-xs4"><a href="/u/set/#avatar"><i class="layui-icon"></i><cite>修改头像</cite></a> </li>
+                                <li class="layui-col-sm3 layui-col-xs4"><a href="/u/set/#pass"><i class="layui-icon"></i><cite>修改密码</cite></a> </li>
+                                <li class="layui-col-sm3 layui-col-xs4"><a href="/u/set/#bind"><i class="layui-icon"></i><cite>帐号绑定</cite></a> </li>
+                                <%include("/common/_nav.html"){}%>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer','form','element','fly'], function() {
+        var form = layui.form
+            ,layer = layui.layer
+            ,element=layui.element
+            ,fly=layui.fly;
+    });
+</script>
+
+</html>

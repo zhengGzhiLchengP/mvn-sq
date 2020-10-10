@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>我上传的音乐 -飞趣</title>
+    <style>
+        .detail-body{min-height:50px;}
+        .detail-about .fly-avatar{left:0;top:0}
+        .detail-about{padding:0 0 0 55px;background:none;height: 50px;}
+        .site-mobile .c-user-main>.layui-nav{left:0}
+        .home-main{margin-left:200px}
+        .article-single {margin-bottom: 10px;}
+        .detail-box{min-height: 550px;}
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container layui-clear topToFix home-all c-user-main">
+    <%include("/common/_user_menu.html",{user:user}){}%>
+    <div class="home-main layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="c-panel detail-box">
+                <%for(var music in musics){%>
+                <div class="article-single" data-id="${music.id}">
+                    <div class="detail-about">
+                        <a class="fly-avatar" href="${ctxPath}/u/${music.userId}"> <img src="${music.icon}"></a>
+                        <a class="c-fly-link" href="${ctxPath}/u/${music.userId}">${music.nickname}</a>
+                        <div>发表于 ${music.createTime,dateFormat='yyyy-MM-dd HH:mm:ss'}</div>
+                        <div class="abs-top-right">
+                            <!--<a href="${ctxPath}/article/edit/${music.id}" class="layui-btn layui-btn-normal">编辑</a>-->
+                            <a href="javascript:;" class="layui-btn layui-btn-danger act-del">删除</a>
+                        </div>
+                    </div>
+                    <div class="detail-body">
+                        <a href="${ctxPath}/music/${music.id}">
+                            ${music.musicName}&nbsp;&nbsp;
+                        </a>
+                    </div>
+                    <div class="c-reply">
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" href="${ctxPath}/music/${music.id}">查看音乐</a>
+                    </div>
+                </div>
+                <%}%>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="site-tree-mobile layui-hide"><i class="layui-icon">&#xe602;</i></div>
+<div class="site-mobile-shade"></div>
+<%include("/common/_footor.html"){}%>
+</body>
+<script src="/js/twemoji.min.js?2.4"></script>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    // layui.cache.page = 'articles'
+    layui.cache.pageInfo = {curr:${p},count:${count},limit:${pageSize}}
+    layui.use(['layer', 'laypage','fly'], function(){
+        var layer = layui.layer
+            ,laypage=layui.laypage,fly=layui.fly;
+        laypage.render({
+            elem: 'pagesplit'
+            ,curr:${p}
+            ,count: ${count}
+            , limit:${pageSize}
+            ,layout: ['count', 'prev', 'page', 'next', 'skip']
+            ,jump: function(obj,first){
+                if(!first){
+                    location.href = "${ctxPath}/music/my?p="+obj.curr
+                }
+            }
+        });
+        $('.act-del').on('click',function () {
+            var li = $(this).parents('.article-single');
+            layer.confirm('确认删除这个音乐吗?', {icon: 3, title:'提示'}, function(index){
+                var id = li.data('id');
+                fly.json('/music/delete',{id:id},function (res) {
+                    layer.msg('删除成功');
+                    li.fadeOut(1000,function(){
+                        this.remove();
+                    })
+                })
+                layer.close(index);
+            });
+        })
+    });
+</script>
+</html>

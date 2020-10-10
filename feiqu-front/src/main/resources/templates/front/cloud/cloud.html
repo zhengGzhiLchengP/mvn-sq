@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>云存储服务 -飞趣</title>
+    <style>
+        .cloud-list li {
+            margin: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .layui-form-label {
+            width: 200px;
+        }
+
+        .layui-input {
+            width: 200px;
+            display: initial;
+        }
+
+        .fly-layer-search input {
+            height: 75px;
+            line-height: 75px;
+            width: 500px;
+            padding: 0 15px;
+            font-size: 20px;
+            border: none 0;
+            background: none;
+        }
+
+        .bookmark-search {
+            display: inline-block;
+            vertical-align: top;
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .bookmark-search:hover {
+            color: #5FB878;
+        }
+    </style>
+</head>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<body>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">云盘里面的文件</span>
+                    <span class="BOOKMARK_search bookmark-search">
+                        <i class="layui-icon layui-icon-search"></i>
+                    </span>
+                    <!--<button class="layui-btn choose" op="1">只看自己</button>-->
+                    <!--<button class="layui-btn choose" op="2">查看所有</button>-->
+                </div>
+                <div class="c-panel-body">
+                    <div>
+                        <label class="layui-form-label">开关（是否保留原文件名）<input type="checkbox" name="switch"></label>
+                        <input class="layui-input" name="parentDir" placeholder="新建目录名，不填代表无" value="${parentDir!}">
+                        <a id="uploadBookmark" href="javascript:;" class="layui-btn">上传文件到云盘</a>
+                    </div>
+                    <div>
+                        ${parentDir!}
+                        <%if(isNotEmpty(parentDir)){%>
+                        <a href="/cloud" class="c-fly-link">上一级</a>
+                        <%}%>
+                    </div>
+                    <ul class="cloud-list">
+                        <%for(var file in fileItems!){%>
+                        <li>
+                            <%if(file.type == 'FILE'){%>
+                            <a lay-data="${file.url}" href="javascript:;" class="layui-btn file-open"><i class="layui-icon layui-icon-file"></i>
+                                ${file.name}</a>
+                            <%}else{%>
+                            <a href="/cloud?parentDir=${file.name}" class="layui-btn"><i class="fa fa-folder-o"></i>
+                                ${file.name}</a>
+                            <%}%>
+                            <span class="size">${file.size}</span>
+                            ${printTime(file.time)}
+                            <%if(file.type == 'FILE'){%>
+                            <!--<a lay-data="${file.name}" href="" class="layui-btn layui-btn-danger del">删除</a>-->
+                            <%}%>
+                        </li>
+                        <%}%>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    var parentDir = '${parentDir!}', layer = layui.layer, upload = layui.upload,device=layui.device();
+    $('.size').each(function () {
+        var size = $(this).html();
+        if (size) {
+            size = parseInt(size);
+            var k = 1024;
+            var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            var i = Math.floor(Math.log(size) / Math.log(k));
+            var finalSize = (size / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+            $(this).html(finalSize);
+        }
+    });
+    var image = ['gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp'];
+    $('.choose').click(function () {
+        var d = $(this).attr('op');
+        location.href='/cloud?d='+d
+    })
+        $('.file-open').click(function () {
+            var url = $(this).attr('lay-data');
+            var fileType =getFileSuffix(url);
+            var index = image.indexOf(fileType);
+            if(index >= 0){
+                layer.open({
+                    type: 1
+                    , title: '预览'
+                    , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                    , content: ['<ul class="layui-form" style="margin: 20px;">'
+                        ,'<img src="',url,'">'
+                        , '</ul>'].join('')
+                });
+            }else {
+                window.open(url)
+            }
+        });
+
+    function getFileSuffix(name) {
+        var lastIndex = name.lastIndexOf('.');
+        if (lastIndex === -1) {
+            return 'other';
+        }
+        return name.substr(lastIndex + 1).toLowerCase();
+    }
+    $('.del').click(function () {
+        var name = $(this).attr('lay-data');
+        var param = {
+            filename: name,
+            parentDir: parentDir
+        }
+        $.operate.json('/cloud/delFile', param, function (res) {
+            $.modal.msgSuccess("删除成功")
+            location.reload();
+        })
+    })
+    //弹出搜索框
+    $('.BOOKMARK_search').on('click', function () {
+        layer.open({
+            type: 1
+            , title: false
+            , closeBtn: false
+            //,shade: [0.1, '#fff']
+            , shadeClose: true
+            , maxWidth: 10000
+            , skin: 'fly-layer-search'
+            , content: ['<form action="/cloud">'
+                , '<input autocomplete="off" placeholder="搜索内容，回车跳转" type="text" name="q">'
+                , '</form>'].join('')
+            , success: function (layero) {
+                var input = layero.find('input');
+                input.focus();
+                searchAll(layero.find('form'));
+            }
+        })
+    });
+    //监听搜索引擎外部搜索
+    var searchAll = function (form) {
+        $(form).submit(function () {
+            var input = $(this).find('input[name="q"]')
+                , val = input.val();
+            if (val.replace(/\s/g, '') === '') {
+                return false;
+            }
+        });
+    };
+    var loadIndex;
+    upload.render({
+        elem: '#uploadBookmark'
+        , url: '/cloud/upload/'
+        , size: 10000
+        , accept: "file"
+        , before: function (obj) {
+            loadIndex = layer.load(2, {shade: 0.8})
+        }
+        , data: {
+            isOrigin: function () {
+                return $('input[name="switch"]').prop("checked");
+            },
+            parentDir: function () {
+                return $('input[name="parentDir"]').val();
+            }
+        }
+        , done: function (res) {
+            layer.close(loadIndex);
+            if (res.code === 0) {
+                $.modal.msgSuccess("上传成功");
+                location.reload();
+            } else {
+                layer.msg(res.message, {icon: 5});
+            }
+        }
+    });
+</script>
+</html>

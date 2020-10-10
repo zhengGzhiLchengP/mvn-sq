@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>后台管理 -飞趣</title>
+    <style>
+        .layui-container {
+            width: 90%;
+        }
+        #content-main {
+            height: calc(100% - 140px);
+            overflow: hidden;
+        }
+        iframe{
+            width: 100%;
+            height: 100%;
+            min-height: 700px;
+        }
+        .content-tabs {
+            position: relative;
+            height: 42px;
+            background: #fafafa;
+            line-height: 40px;
+        }
+        .content-tabs .roll-left {
+            left: 0;
+            border-right: solid 1px #eee;
+        }
+        .content-tabs .roll-nav, .page-tabs-list {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            color: #999;
+            z-index: 2;
+            top: 0;
+        }
+        .content-tabs button {
+            background: #fff;
+            border: 0;
+            height: 40px;
+            width: 40px;
+            outline: none;
+        }
+        .content-tabs .roll-right {
+            right: 0;
+            border-left: solid 1px #eee;
+        }
+        nav.page-tabs {
+            margin-left: 40px;
+            width: 100000px;
+            height: 40px;
+            overflow: hidden;
+        }
+        .page-tabs a:hover, .content-tabs .roll-nav:hover {
+            color: #777;
+            background: #f2f2f2;
+            cursor: pointer;
+        }
+        .page-tabs a.active {
+            background: #eaedf1;
+            color: #23508e;
+        }
+        nav.page-tabs .page-tabs-content {
+            float: left;
+        }
+        .page-tabs a {
+            display: block;
+            float: left;
+            border-right: solid 1px #eee;
+            padding: 0 15px;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container fly-marginTop topToFix c-user-main">
+    <%include("/common/_admin_menu.html",{}){}%>
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div class="layui-row content-tabs">
+                    <button class="roll-nav roll-left tabLeft">
+                        <i class="fa fa-backward"></i>
+                    </button>
+                    <nav class="page-tabs menuTabs">
+                        <div class="page-tabs-content">
+                            <a href="javascript:;" class="active menuTab" data-id="/admin/main">首页</a>
+                        </div>
+                    </nav>
+                    <a href="#" class="roll-nav roll-right tabReload"><i class="fa fa-refresh"></i> 刷新</a>
+                </div>
+                <div class="row mainContent" id="content-main">
+                    <iframe class="RuoYi_iframe" name="iframe0" width="100%" height="100%" data-id="/admin/main"
+                            src="/admin/main" frameborder="0" seamless></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.cache.page = 'admin'
+</script>
+</html>

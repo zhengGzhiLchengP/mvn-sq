@@ -1,0 +1,218 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <table class="layui-hide" id="fqFriendLinkManage" lay-filter="fqFriendLink"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="run">执行</a>
+                </script>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device();
+        table.render({
+            elem: '#fqFriendLinkManage'
+            , url: '/tool/shellScript/list'
+            , toolbar: '#headToolbar'
+            , title: '友链数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'shellName', title: '简称', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'shellFileName', title: '文件名称', width: 100, fixed: 'left', unresize: true, sort: true},
+                {field: 'operator', title: '操作人', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'dictionary', title: '目录', width: 180, fixed: 'left', unresize: true, sort: true},
+                {field: 'type', title: '类型', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'remark', title: '备注', width: 150, fixed: 'left', unresize: true, sort: true},
+                {field: 'gmtCreate', title: '创建时间', width: 160, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 160, align: 'center', toolbar: '#bar'}
+            ]]
+            ,limit:20
+            , page: true
+            , response: {
+                statusCode: '0000',
+                msgName: 'message'
+            }
+            , id: 'fqFriendLinkReload'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(fqFriendLink)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 1
+                        , id: 'fq_fqFriendLink'
+                        , title: '新增shell脚本'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本简称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="shellName" lay-verify="required" placeholder="脚本简称"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本文件名称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="shellFileName" lay-verify="required" placeholder="脚本文件名称"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本执行目录</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="dictionary" lay-verify="required" placeholder="脚本执行目录"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">类型</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="type" lay-verify="required" placeholder="类型 1:直接执行bash 2：生成文件 执行文件"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">备注</label>'
+                            , '<div class="layui-input-block">'
+                            , '<textarea name="remark" lay-verify="required" placeholder="备注"  class="layui-textarea"></textarea>'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本内容</label>'
+                            , '<div class="layui-input-block">'
+                            , '<textarea name="bash" lay-verify="required" placeholder="脚本内容"  class="layui-textarea"></textarea>'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="fqFriendLink" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            form.on('submit(fqFriendLink)', function (data) {
+                                fly.json('/tool/shellScript/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('fqFriendLinkReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+            ;
+        });
+        table.on('tool(fqFriendLink)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个脚本么', function (index) {
+                    fly.json('/tool/shellScript/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('fqFriendLinkReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'run') {
+                fly.json('/tool/shellScript/run/' + data.id, {}, function (res) {
+                    layer.alert(fly.content(res.data));
+                });
+            }
+            else if (obj.event === 'edit') {
+                fly.json('/tool/shellScript/detail/'+data.id,function (res) {
+                    layer.open({
+                        type: 1
+                        , id: 'fq_fqFriendLink'
+                        , title: '编辑脚本'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本简称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input type="hidden" name="id" value="'+data.id+'">'
+                            , '<input required name="shellName" lay-verify="required" placeholder="脚本简称" value="'+data.shellName+'"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本文件名称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="shellFileName" lay-verify="required" placeholder="脚本文件名称" value="'+data.shellFileName+'" class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本执行目录</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="dictionary" lay-verify="required" placeholder="脚本执行目录" value="'+data.dictionary+'" class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">脚本内容</label>'
+                            , '<div class="layui-input-block">'
+                            , '<textarea name="bash" lay-verify="required" placeholder="脚本内容"  class="layui-textarea">'+res.data.bash+'</textarea>'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="fqFriendLink" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            form.on('submit(fqFriendLink)', function (data) {
+                                fly.json('/tool/shellScript/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('fqFriendLinkReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                })
+            }
+        });
+    });
+</script>
+</html>

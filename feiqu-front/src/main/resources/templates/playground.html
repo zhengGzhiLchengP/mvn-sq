@@ -1,0 +1,287 @@
+<%
+layout("/common/_fq_layout.html",{title:'飞趣社区 -让生活更有趣'}){
+%>
+<style>
+    .c-list-info{position:relative;overflow:hidden;font-size:13px;line-height:2;color:#999}
+    .detail-box{line-height:26px}
+    .detail-body{min-height:0;margin-top:0;line-height:24px;font-size:14px}
+    .detail-about .fly-avatar{left:0;top:0}
+    .detail-about{padding:0 0 0 55px;background:none}
+    .thought-body{margin:25px 0 20px;min-height:0;line-height:24px;font-size:14px}
+    .hot{line-height:1.7}
+    .hot img{max-width:100%}
+    .hot li{position:relative}
+    .hot li a{overflow:hidden;max-width:80%;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+    .hot li em{position:absolute;right:0;top:0;font-size:12px;color:#999;font-style:normal}
+    .c-list h2 a{display:inline-block;max-width:80%;padding-right:10px;font-size:16px}
+    .c-list li h2 .layui-badge{top:-2px;height:16px;line-height:16px;padding:0 5px;margin-right:10px;font-size:12px;border:1px solid #5FB878;background:none;color:#5FB878}
+    .c-list-info a{color:#999}
+    .global-write-nav {
+        display: flex;
+        justify-content: center;
+    }
+    .GlobalWrite-navItem {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        margin: 23px;
+        position: relative;
+    }
+    .GlobalWrite-navTitle {
+        color: #444;
+        font-size: 16px;
+    }
+    .GlobalWrite-navIcon {
+        color: #8590a6;
+        margin-bottom: 6px;
+        font-size: 25px;
+    }
+    .tip{margin:15px 15px;line-height:26px;list-style:decimal-leading-zero inside;color:#009E94;padding-bottom:15px}
+    .detail-body{min-height:0;margin-top:0;line-height:24px;font-size:14px}
+    .c-reply-block{-webkit-box-shadow:0 1px 3px 0 rgba(0,33,77,.05);box-shadow:0 1px 3px 0 rgba(0,33,77,.05);margin-top:12px;overflow:visible;border-radius:4px}
+    .reply-input{padding:5px 12px !important;position:relative}
+    .reply-input input{width:80%;background:none}
+    .reply-input button{position:absolute;right:10px;top:5px}
+    .comments span{padding-right:0}
+    .c-signin cite{padding:0 5px;color:#FF5722;font-style:normal}
+    .detail-about .fly-avatar{left:0;top:0}
+    .detail-about{padding:0 0 0 55px;background:none}
+    .thought-body{margin:25px 0 20px;min-height:0;line-height:24px;font-size:14px}
+    .sign-days-div{text-align:center;padding-top:20px}
+    .sayout{font-family:Helvetica,'Hiragino Sans GB','Microsoft Yahei','微软雅黑',Arial,sans-serif}
+    .t-intro{display:inline-block;vertical-align:top;height:21px;letter-spacing:3.8px;color:#1b7fb6}
+    .layui-textarea{margin-top:5px}
+    .tip a{padding-right:10px}
+    #pagesplit-head .layui-laypage{margin:0}
+    .home-main{margin-left:208px}
+    .reply-input span{position:absolute;right:22%;cursor:pointer;padding:0 10px;line-height:38px;color:#ffa405}
+    .c-reply span{width: 33%;float: left;padding-right: 0;text-align: center}
+    .page-head {position: absolute;right: 15px;top:0;}
+    #FQ_signdays td{width:36px;height:30px;padding:5px;margin:10px;color:#666;text-align:center}
+    .NumberBoard{display:-webkit-box;display:-ms-flexbox;display:flex}
+    .NumberBoard-item{-webkit-box-flex:1;-ms-flex:1;flex:1}
+    .NumberBoard-itemValue{display:inline-block;font-size:18px;color:#1a1a1a;font-weight:600;font-synthesis:style}
+    .forget-days-table td:hover{background-color: #eaeaea;color: #333;cursor: pointer}
+    .op-list{
+        border-width: 1px;
+        border-style: solid;
+        padding: 8px 0;
+        border-color: #e7e7e7;
+        background-color: #fff;
+        box-shadow: 0 1px 1px rgba(0,0,0,.1);
+        color: #5f5f5f;width: 158px;
+    }
+    .op-list a{
+        display: block;
+        height: 36px;
+        line-height: 36px;
+        padding: 0 15px;
+        font-size: 13px;
+    }
+
+    .t-list li{
+        background-color: #fff;
+        margin-bottom: 20px;
+        padding: 10px;
+        word-wrap: break-word;
+        position: relative;
+    }
+    #fq-index-banner{
+        height: 175px;
+    }
+</style>
+<div class="layui-container layui-clear topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-body">
+                    <div class="layui-carousel" id="fq-index-banner">
+                        <div carousel-item>
+                            <%for(var ad in advertisements!){%>
+                            <div><a href="${ad.adHref!'#'}" target="_blank"><img alt="无法显示" src="${ad.picUrl!}"></a></div>
+                            <%}%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-body c-text-center" style="font-size: 20px">
+                    ${soulTitle!}
+                </div>
+            </div>
+            <div class="c-panel" id="fq-notice">
+                <div class="c-panel-title fly-filter"><a>通知</a></div>
+                <ul class="c-list">
+                    <%for(var notice in noticeList!){%>
+                    <li> <a href="${ctxPath}/u/${notice.userId}" class="fly-avatar"> <img src="${notice.icon}" alt="${notice.nickname}"> </a> <h2> <a class="layui-badge">公告</a>
+                        <a href="${ctxPath}/fqNotice/view/${notice.id}">${notice.title}</a> </h2>
+                        <div class="c-list-info"><a href="${ctxPath}/u/${notice.userId}"><cite>${notice.nickname}</cite><i class="iconfont icon-renzheng" title="认证信息：官方人员"></i></a> <span>${notice.createTime,'yyyy-MM-dd HH:mm:ss'}</span><span class="c-list-num"> <i class="iconfont icon-pinglun1" title="回复"></i>${notice.commentNum!0}</span></div></li>
+                    <%}%>
+                </ul>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title fly-filter">飞趣社区功能导航</div>
+                <div class="fly-panel-main">
+                    <ul class="layui-row layui-col-space10 fly-shortcut">
+                        <%include("/common/_nav.html"){}%>
+                    </ul>
+                </div>
+            </div>
+            <div id="love" class="c-panel">
+                <div class="c-panel-title">活跃度相关规则（以月为单位）</div>
+                <div class="rule-list">
+                    <table class="layui-table" lay-even="" lay-skin="nob">
+                        <colgroup>
+                            <col width="150">
+                            <col width="200">
+                            <col>
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>相关操作</th>
+                            <th>增加的活跃度</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%for(var ac in activeNums){%>
+                        <tr>
+                            <td>${ac.desc}</td>
+                            <td>+${ac.value}</td>
+                        </tr>
+                        <%}%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4 ">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    广场
+                </div>
+                <div class="c-panel-body">
+                    <p>欢迎来到飞趣，希望你能在这里找到你的小伙伴</p><hr>
+                    <div>
+                        如果你对金融有兴趣，可以来<a class="c-fly-link" href="/finance">这边</a>看看
+                    </div>
+                    <div>
+                        <a target="_blank" class="c-fly-link" href="/financeNews">财经新闻</a>
+                    </div>
+                    <div>
+                        <a target="_blank" class="c-fly-link" href="/panda">金融精英圈子（h5内测版）</a>
+                    </div>
+                    <div style="padding-bottom: 29px">
+                        <a target="_blank" class="c-fly-link" href="/lolita/index.html">Lolita洋装分享</a>
+                    </div>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span>活跃达人</span>
+                </div>
+                <div class="c-panel-body">
+                    <%if(has(thisMonthActiveUsers)){%>
+                    <ul class="rank-list">
+                        <%for(var u in thisMonthActiveUsers){%>
+                        <li>
+                            <div class="rank-list-item">
+                                <%if(u.rank <= 3){%>
+                                <span class="c-list-num rank-red">${u.rank}</span>
+                                <%}else{%>
+                                <span class="c-list-num">${u.rank}</span>
+                                <%}%>
+                                <div class="icon-wrap">
+                                    <a href="/u/${u.userId}">
+                                        <div class="icon-container"><img src="${u.icon}"/></div>
+                                    </a>
+                                </div>
+                                <div class="c-content">
+                                    <div class="content-nick">
+                                        <a href="/u/${u.userId}">${u.name}</a>
+                                    </div>
+                                    <div class="rank-data">
+                                        <span>活跃度+${u.score}</span><span>(${u.city!})</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <%}%>
+                    </ul>
+                    <%}%>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">最新加入的趣友</div>
+                <div class="new-user">
+                    <dl>
+                        <%for(var newuser in newUserList!){%>
+                        <dd>
+                            <a class="c-fly-link" href="${ctxPath}/u/${newuser.userId}">
+                                <img src="${newuser.icon!}">
+                                <cite>${newuser.nickname}</cite>
+                                <i>${newuser.city}</i>
+                            </a>
+                        </dd>
+                        <%}%>
+                    </dl>
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="detail-box fq-text-center" id="fq-date">
+                </div>
+            </div>
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    支付宝活动
+                </div>
+                <div class="c-panel-body">
+                    <img src="http://static.f2qu.com/fq_2019031712042024.jpg">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/twemoji.min.js?2.4"></script>
+<script>
+    layui.use(['fly','flow','face','laydate','carousel'], function () {
+        var fly = layui.fly,flow=layui.flow,laydate=layui.laydate,carousel = layui.carousel;
+        carousel.render({
+            elem: '#fq-topline'
+            ,width: '100%'
+            ,anim: 'fade'
+            ,height:'450px'
+        });
+        carousel.render({
+            elem: '#fq-index-banner'
+            ,width: '100%'
+            ,anim: 'fade'
+            ,height:'175px'
+        });
+        laydate.render({
+            elem:'#fq-date'
+            ,theme: 'molv'
+            ,position: 'static'
+            ,calendar: true
+        })
+
+        $('.thought-text').each(function(){
+            var othis = $(this), html = othis.html();
+            othis.html(twemoji.parse(fly.content(html)));
+        });
+        $('.detail-body img').each(function (i,item) {
+            $(item).attr('lay-src',$(item).attr('src'))
+            $(item).attr('src','')
+        })
+        flow.lazyimg();
+    });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

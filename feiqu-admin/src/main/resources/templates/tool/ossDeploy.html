@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="layui-upload detail-box">
+                <button class="layui-btn" id="uploadBtn">上传部署jar包到阿里云oss</button>
+            </div>
+            <div class="layui-progress layui-hide" lay-filter="thought-pic" lay-showPercent="true">
+                <div class="layui-progress-bar layui-bg-blue" lay-percent="0%"></div>
+            </div>
+        </div>
+        <div class="col-sm-12 search-collapse">
+            <div class="select-list">
+                <ul>
+                    <li>
+                        <label class="">jar包链接：</label>
+                        <input required type="text" name="jarUrl" class="layui-input" value=""/>
+                    </li>
+                    <li>
+                        <label class="">jar包部署路径：
+                            <button class="layui-btn switch-path" c-data="/home/chenweidong/feiqu/feiqu-front.jar">
+                                前端jar
+                            </button>
+                            <button class="layui-btn switch-path"
+                                    c-data="/home/chenweidong/feiqu-admin/feiqu-admin.jar">后端jar
+                            </button>
+                            |${uploadPath!}</label>
+                        <input required type="text" name="jarDestPath" class="layui-input"
+                               value="/home/chenweidong/feiqu-admin/feiqu-admin.jar"/>
+                    </li>
+                    <li>
+                        <br>
+                        <a id="" class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                class="fa fa-refresh"></i>&nbsp;重置</a>
+                        <a id="deploy" class="btn btn-warning btn-rounded btn-sm"><i
+                                class="fa fa-refresh"></i>&nbsp;下载jar包到指定路径</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-12 white-bg">
+            <div id="excuteinfo"></div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script src="/js/alioss.js"></script>
+<script>
+    layui.use('upload', function () {
+        get_signature();
+        var upload = layui.upload;
+        upload.render({
+            elem: '#uploadBtn'
+            , url: action
+            , size: 100000
+            , auto: false
+            , accept: 'file'
+            , choose: function (obj) {
+                $('.layui-progress').removeClass('layui-hide')
+                var files = this.files = obj.pushFile();
+                for (var filekey in files) {
+                    uploadFile(files[filekey], function () {
+                        $('.layui-progress').addClass('layui-hide')
+                        var url = host + tempFilename;
+                        $('input[name="jarUrl"]').val(url)
+                        delete files[filekey];
+                    });
+                }
+            }
+            , error: function () {
+            }
+        });
+    });
+    $(function () {
+        $(".switch-path").click(function () {
+            var path = $(this).attr('c-data');
+            $('input[name="jarDestPath"]').val(path)
+        })
+        $('#deploy').click(function () {
+            $.ajax({
+                url: '/tool/deploy/ossDeploy',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    jarUrl: $('input[name="jarUrl"]').val(),
+                    jarDestPath: $('input[name="jarDestPath"]').val(),
+                    fileKey: tempFilename
+                },
+                beforeSend: function () {
+                    loadIndex = $.modal.loading("正在处理中，请稍后...");
+                },
+                success: function (result) {
+                    $.modal.closeLoading(loadIndex)
+                    if (result.code == web_status.SUCCESS) {
+                        $.modal.msgSuccess(result.msg);
+                    } else {
+                        $.modal.msgWarning(result.msg);
+                    }
+                }
+            })
+        })
+    });
+</script>
+</body>
+</html>

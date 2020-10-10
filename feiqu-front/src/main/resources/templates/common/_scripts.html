@@ -1,0 +1,36 @@
+<script src="${ctxPath}/js/jquery-1.11.2.min.js"></script>
+<script src="${ctxPath}/layui/layui.all.js"></script>
+<script src="${ctxPath}/js/fq-ui.js?v=2"></script>
+<script>
+    var random = Math.floor((Math.random() * 100) + 1), ctx = '${ctxPath}';
+    layui.cache.user = {
+        username: '${user.nickname!""}',
+        userId:${user.id!0},
+        icon: '${user.icon!""}',
+        roleName: '${user.roleName!}',
+        role :${user.role!0}
+    };
+    var isLogin = true;
+    if (layui.cache.user.userId === 0) {
+        layui.cache.user.username = "游客" + random;
+        isLogin = false;
+    }
+    layui.cache.domainUrl = '${DOMAIN_URL!}';
+    layui.config({
+        version: "${LAYUI_VERSION}"
+        , base: '${ctxPath}/lay/modules/fly/'
+    }).extend({'fly': 'cool'}).use('fly');
+</script>
+<script>
+    var n, r = $(document), headHeight = 60,
+        $head = $('.c-head');
+    r.on("scroll", function () {
+        clearTimeout(n), n = setTimeout(function () {
+            s()
+        }, 100)
+    });
+    var s = function () {
+        var t = r.scrollTop();
+        t >= headHeight ? $head.hide() : $head.show()
+    };
+</script>

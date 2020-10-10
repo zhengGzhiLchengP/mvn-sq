@@ -1,0 +1,204 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div>
+                    <label>命令：</label><input id="command" class="layui-input">
+                </div>
+                <table class="layui-hide" id="fqFriendLinkManage" lay-filter="fqFriendLink"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="run">执行</a>
+                </script>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device();
+        table.render({
+            elem: '#fqFriendLinkManage'
+            , url: '/deploy/sshModel/list'
+            , toolbar: '#headToolbar'
+            , title: 'ssh 信息'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'name', title: 'ssh名称', width: 160, fixed: 'left', unresize: true, sort: true},
+                {field: 'host', title: '主机', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'port', title: '端口', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'user', title: '用户名', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'password', title: '密码', width: 120, fixed: 'left', unresize: true, sort: true},
+                {fixed: 'right', width: 160, align: 'center', toolbar: '#bar'}
+            ]]
+            ,limit:20
+            , page: true
+            , response: {
+                msgName: 'message'
+            }
+            , id: 'fqFriendLinkReload'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(fqFriendLink)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 1
+                        , id: 'fq_fqFriendLink'
+                        , title: '新增shell脚本'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">ssh名称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="name" lay-verify="required" placeholder="ssh名称"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">主机</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="host" lay-verify="required" placeholder="输入ip"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">端口</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="port" lay-verify="required" placeholder="端口"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">用户名</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="user" lay-verify="required" placeholder="用户名"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">密码</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="password" lay-verify="required" placeholder="密码"  class="layui-input">'
+                            , '</div>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="fqFriendLink" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            form.on('submit(fqFriendLink)', function (data) {
+                                fly.json('/deploy/sshModel/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('fqFriendLinkReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+            ;
+        });
+        table.on('tool(fqFriendLink)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个脚本么', function (index) {
+                    fly.json('/deploy/sshModel/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('fqFriendLinkReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'run') {
+                $.modal.loading(1);
+                fly.json('/deploy/sshModel/run/' + data.id, {command:$('#command').val()}, function (res) {
+                    $.modal.closeAll()
+                    layer.open({
+                        area: (device.ios || device.android) ? ($(window).width() + 'px') : '800px',
+                        type: 1,
+                        content: fly.content(res.data)
+                    })
+
+                });
+            }
+            else if (obj.event === 'edit') {
+                fly.json('/tool/shellScript/detail/'+data.id,function (res) {
+                    layer.open({
+                        type: 1
+                        , id: 'fq_fqFriendLink'
+                        , title: '编辑脚本'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">ssh名称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input type="hidden" name="id" value="'+data.id+'">'
+                            , '<input required name="name" lay-verify="required" placeholder="名称" value="'+data.name+'"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">密码</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="password" lay-verify="required" placeholder="密码" value="'+data.password+'" class="layui-input">'
+                            , '</div>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="fqFriendLink" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            form.on('submit(fqFriendLink)', function (data) {
+                                fly.json('/deploy/sshModel/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('fqFriendLinkReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                })
+            }
+        });
+    });
+</script>
+</html>

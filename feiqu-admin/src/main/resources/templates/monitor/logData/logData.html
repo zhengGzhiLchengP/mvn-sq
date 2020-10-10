@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="logininfor-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>日志类型：</label>
+                            <select name="logType">
+                                <option value="">全部</option>
+                                <option value="admin-gc">admin-gc</option>
+                                <option value="admin-info">admin-info</option>
+                                <option value="admin-error">admin-error</option>
+                                <option value="front-gc">front-gc</option>
+                                <option value="front-error">front-error</option>
+                                <option value="front-info">front-info</option>
+                                <option value="nginx-log">nginx-log</option>
+                                <option value="nginx-error">nginx-error</option>
+                            </select>
+                        </li>
+                        <li class="select-time">
+                            <label>生成日期： </label>
+                            <input type="text" class="time-input" id="generateDate" placeholder="生成日期"
+                                   name="generateDate"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-danger btn-del disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="monitor:logininfor:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-danger" onclick="$.operate.clean()" shiro:hasPermission="monitor:logininfor:remove">
+                <i class="fa fa-trash"></i> 清空
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="monitor:logininfor:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+
+<%include("/common/_scripts.html"){}%>
+<script th:inline="javascript">
+    var prefix = ctx + "monitor/logData";
+    var removeFlag = "${shiro.hasPermi('monitor:logData:remove')}";
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            cleanUrl: prefix + "/clean",
+            removeUrl: prefix + "/remove",
+            updateUrl: prefix + "/edit/{id}",
+            sortName: "loginTime",
+            sortOrder: "desc",
+            modalName: "登录日志",
+            escape: true,
+            showPageGo: true,
+            rememberSelected: true,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: 'id'
+                },
+                {
+                    field: 'generateDate',
+                    title: '生成日期',
+                    sortable: true
+                },
+                {
+                    field: 'logType',
+                    title: '日志类型'
+                },
+                {
+                    title: '操作',
+                    width: '20%',
+                    align: "left",
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        var url = prefix+ '/detail/'+row.id;
+                        actions.push('<a class="btn btn-success btn-xs ' + '" href="javascript:void(0)" ' +
+                        // 'onclick="$.operate.edit(\'' + row.roleId + '\')"'
+                            'onclick="$.modal.openTab(\'日志详情\',\''+url+'\') "<i class="fa fa-edit"></i>详情</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-trash"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }
+               ]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

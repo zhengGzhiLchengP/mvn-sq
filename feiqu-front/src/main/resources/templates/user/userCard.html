@@ -1,0 +1,134 @@
+<style>
+    .layui-clear {
+        zoom: 1;
+    }
+    .ui_card_wrap {
+        position: absolute;
+        background-color: #fff;
+        padding: 2px;
+        background-color: #fff;
+        background: url(//tb2.bdstatic.com/tb/img/grey_border_97762d7.png) repeat;
+    }
+    .card_headinfo_wrap {
+        width: 368px;
+        height: 100px;
+        position: relative;
+        top: 0;
+        left: 0;
+    }
+    .card_userinfo_wrap {
+        padding-bottom: 8px;
+        width: 368px;
+        background: #F5F7FA;
+    }
+    .card_userinfo_left {
+        position: relative;
+        width: 135px;
+        height: 96px;
+        float: left;
+    }
+    .card_userinfo_title {
+        font-family: 'Microsoft YaHei';
+        font-size: 16px;
+        margin-top: 8px;
+        color: #5F6062;
+        line-height: 20px;
+    }
+    .card_userinfo_num {
+        margin-top: 6px;
+        color: #797C80;
+    }
+    .card_userinfo_tbvip {
+        margin-top: 5px;
+        overflow: hidden;
+    }
+    .card_userinfo_left .userinfo_head_wrap {
+        height: 117px;
+        width: 117px;
+        left: 15px;
+        position: absolute;
+        top: -30px;
+    }
+
+    .card-wrap {
+        visibility: visible;
+        width: 370px;
+        height: 204px;
+    }
+    .card_headinfo_wrap img {
+        width: 370px;
+        height: 100px;
+        position: absolute;
+        left: -1px;
+    }
+    .card_userinfo_middle {
+        overflow: hidden;
+    }
+    .card_userinfo_middle .userinfo_sex_male {
+        background-position: 0 -32px;
+    }
+    .card_userinfo_middle .userinfo_sex {
+        height: 14px;
+        margin: 0px 4px 0 0;
+        vertical-align: middle;
+        width: 14px;
+    }
+    .card_userinfo_middle span {
+        font-family: SimSun;
+        display: inline;
+    }
+
+    .icon_wrap_theme1 .level {
+        float: right;
+        color: #B65E00;
+        width: 22px;
+        height: 25px;
+        text-align: center;
+        padding-right: 20px;
+    }
+    .card_userinfo_middle .userinfo_split {
+        border-color: #CCC;
+        border-style: solid;
+        border-width: 0 0 0 1px;
+        height: 10px;
+        margin: 6px 4px;
+    }
+    .j_avatar img{
+        width: 105px;
+        height: 105px;
+        border: 0;
+    }
+</style>
+<div class="card-wrap">
+<div class="j_content ui_card_content c-panel">
+    <div class="card_headinfo_wrap" id="card_headinfo_wrap">
+        <img class="card_userinfo_img" src="http://tieba.baidu.com/tb/static-ihome/img/panel_1001.jpg"><a
+            class="card_userinfo_guide" target="_blank" href="/tbmall/propslist?category=113"></a>
+        <div class="interaction_wrap interaction_wrap_theme2"></div>
+    </div>
+    <div class="card_userinfo_wrap layui-clear">
+        <div class="card_userinfo_left ">
+            <div class="userinfo_head_wrap">
+                <div class="userinfo_head" style=""></div>
+                <a href="/u/${fqUser.id}"
+                   class="j_avatar" target="_blank"><img src="${fqUser.icon!}"></a>
+            </div>
+        </div>
+        <div class="card_userinfo_middle">
+            <div class="card_userinfo_title layui-clear"><a
+                    href="/u/${fqUser.id}"
+                    target="_blank" class="userinfo_username ">${fqUser.nickname}</a>
+                <span class="icon_wrap  icon_wrap_theme1">
+                <a class="level"
+                    style="background: url(http://tb2.bdstatic.com/tb/static-puser/widget/pb_author/img/s6_f21bdf5.gif) no-repeat;"
+                    target="_blank" href="#"> ${fqUser.level!1}</a></span></div>
+            <div class="card_userinfo_num layui-clear"><span
+                    class="userinfo_sex userinfo_sex_male"><i class="iconfont ${decode(fqUser.sex,1,'icon-nan',2,'icon-nv','icon-wenda')}"></i></span><span>趣龄:${fqUser.qulin!}</span><span
+                    class="userinfo_split"></span><span>Q豆:${fqUser.qudouNum}</span></div>
+            <div class="card_userinfo_tbvip layui-clear">
+                ${fqUser.sign!}
+            </div>
+        </div>
+    </div>
+</div>
+</div>

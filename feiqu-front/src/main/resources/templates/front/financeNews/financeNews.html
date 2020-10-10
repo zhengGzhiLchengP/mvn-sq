@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>财经要闻 -飞趣</title>
+    <style>
+        .hotsingle {
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first"><a class="" href="/financeNews">财经要闻</a></span>
+                    <span class="c-mid"></span>
+                    <label>切换</label>
+                    <span class="c-mid"></span>
+                </div>
+                <div class="c-panel-body " id="hotTopic-list">
+                </div>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <%include("/common/_advertisements.html"){}%>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    var flow = layui.flow
+
+    function loadData(source, keyword) {
+        flow.load({
+            isAuto: false,
+            elem: '#hotTopic-list'
+            , done: function (page, next) {
+                var lis = [];
+                $.get('/financeNews/list?page=' + page + '&source=' + source + '&keyword=' + keyword, function (res) {
+                    layui.each(res.data.list, function (index, item) {
+                        lis.push('<div class="hotsingle">' +
+                            '<div class="">' +
+                            '<a class="c-fly-link news" content="' + item.content + '" href="' + item.url + '" target="_blank">' +
+                            item.title +
+                            '</a>' +
+                            '</div>' +
+                            '</div>');
+                    });
+                    next(lis.join(''), page < res.data.pages);
+                    $('.news').hover(function () {
+                        var k = $(this).attr('content');
+                        if (k) {
+                            layer.tips(k, this, {
+                                tips: 1
+                            })
+                        }
+                    }, function () {
+                        layer.closeAll('tips');
+                    });
+                });
+            }
+        });
+    }
+
+    loadData('', '');
+</script>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>优惠产品推荐 -飞趣</title>
+    <style>
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">商品推荐</span>
+                </div>
+                <div class="c-panel-body">
+                    <input id="findHotTopic" placeholder="寻找商品" class="layui-input">
+                </div>
+                <div class="c-panel-body">
+                    <div class="layui-row layui-col-space15">
+                        <%for(var hot in pageInfo.list){%>
+                        <div class="layui-col-md4">
+                            <img src="${hot.productImg}" style="max-width:100% ">
+                            <p>${hot.productDesc}</p>
+                            <p>
+                                淘口令：<span id="kl${hotLP.index}">${hot.taoKouLin}</span>
+                                <button class="btn layui-btn layui-btn-sm" data-clipboard-action="copy" data-clipboard-target="#kl${hotLP.index}">Copy</button>
+                            </p>
+                            <p>
+                                <a class="c-fly-link" href="${hot.linkUrl}" target="_blank">【立即下单】</a>
+                                <a href="javascript:;" class="c-fly-link see-qrcode"
+                                   cwd-href="${hot.qrcode}">【查看二维码】</a>
+                            </p>
+                            <span class="layui-badge">${hot.provider}</span>
+                            <span class="layui-badge">${hot.type!}</span>
+                            <span class="layui-badge">${hot.label}</span>
+                            <hr>
+                        </div>
+                        <%}%>
+                    </div>
+                </div>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script src="/js/clipboard.min.js"></script>
+<script>
+    var clipboard = new ClipboardJS('.btn');
+    layui.use(['layer', 'laypage', 'fly'], function () {
+        var layer = layui.layer
+            , laypage = layui.laypage
+            , fly = layui.fly, device = layui.device();
+        clipboard.on('success', function(e) {
+            console.log(e);
+            $.modal.msgSuccess("复制成功")
+        });
+        clipboard.on('error', function(e) {
+            console.log(e);
+            $.modal.msgError("复制失败")
+        });
+
+        $('#findHotTopic').on('keyup', function (e) {
+            if (e.keyCode === 13)
+                location.href = '/taobaoProduct?keyword=' + $(this).val();
+        })
+        $('.see-qrcode').click(function () {
+            var imgUrl = $(this).attr('cwd-href');
+            layer.open({
+                type: 1
+                , id: 'fq'
+                , title: '查看二维码'
+                , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                , content: ['<div class="detail-box c-text-center"><img src="' + imgUrl + '"/></div>'].join('')
+            });
+        })
+        laypage.render({
+            elem: 'pagesplit'
+            , count: ${pageInfo.total}
+            , curr:${pageInfo.pageNum}
+            , limit:${pageInfo.pageSize}
+            , jump: function (obj, first) {
+                if (!first) {
+                    location.href = "${ctxPath}/taobaoProduct?pageNum=" + obj.curr
+                }
+            }
+        });
+    });
+</script>
+</html>

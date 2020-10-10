@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feiqu.system.mapper.basicData.CpuMapper">
+  <resultMap id="BaseResultMap" type="com.feiqu.system.model.basicData.Cpu">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="basic_pinlv" jdbcType="DOUBLE" property="basicPinlv" />
+    <result column="core_num" jdbcType="INTEGER" property="coreNum" />
+    <result column="thread_num" jdbcType="INTEGER" property="threadNum" />
+    <result column="ludashi_score" jdbcType="DOUBLE" property="ludashiScore" />
+    <result column="sdmark_score" jdbcType="DOUBLE" property="sdmarkScore" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="power" jdbcType="DOUBLE" property="power" />
+    <result column="nami" jdbcType="INTEGER" property="nami" />
+    <result column="rui_pinlv" jdbcType="DOUBLE" property="ruiPinlv" />
+    <result column="super_pinlv" jdbcType="DOUBLE" property="superPinlv" />
+    <result column="main_board" jdbcType="VARCHAR" property="mainBoard" />
+    <result column="memory_type" jdbcType="VARCHAR" property="memoryType" />
+    <result column="interface_type" jdbcType="VARCHAR" property="interfaceType" />
+    <result column="extra_info" jdbcType="VARCHAR" property="extraInfo" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name, remark, basic_pinlv, core_num, thread_num, ludashi_score, sdmark_score, 
+    gmt_create, power, nami, rui_pinlv, super_pinlv, main_board, memory_type, interface_type, 
+    extra_info
+  </sql>
+  <select id="selectByExample" parameterType="com.feiqu.system.model.basicData.CpuExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from cpu
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from cpu
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from cpu
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.feiqu.system.model.basicData.CpuExample">
+    delete from cpu
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.feiqu.system.model.basicData.Cpu">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into cpu (name, remark, basic_pinlv, 
+      core_num, thread_num, ludashi_score, 
+      sdmark_score, gmt_create, power, 
+      nami, rui_pinlv, super_pinlv, 
+      main_board, memory_type, interface_type, 
+      extra_info)
+    values (#{name,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{basicPinlv,jdbcType=DOUBLE}, 
+      #{coreNum,jdbcType=INTEGER}, #{threadNum,jdbcType=INTEGER}, #{ludashiScore,jdbcType=DOUBLE}, 
+      #{sdmarkScore,jdbcType=DOUBLE}, #{gmtCreate,jdbcType=TIMESTAMP}, #{power,jdbcType=DOUBLE}, 
+      #{nami,jdbcType=INTEGER}, #{ruiPinlv,jdbcType=DOUBLE}, #{superPinlv,jdbcType=DOUBLE}, 
+      #{mainBoard,jdbcType=VARCHAR}, #{memoryType,jdbcType=VARCHAR}, #{interfaceType,jdbcType=VARCHAR}, 
+      #{extraInfo,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.feiqu.system.model.basicData.Cpu">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into cpu
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        name,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="basicPinlv != null">
+        basic_pinlv,
+      </if>
+      <if test="coreNum != null">
+        core_num,
+      </if>
+      <if test="threadNum != null">
+        thread_num,
+      </if>
+      <if test="ludashiScore != null">
+        ludashi_score,
+      </if>
+      <if test="sdmarkScore != null">
+        sdmark_score,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="power != null">
+        power,
+      </if>
+      <if test="nami != null">
+        nami,
+      </if>
+      <if test="ruiPinlv != null">
+        rui_pinlv,
+      </if>
+      <if test="superPinlv != null">
+        super_pinlv,
+      </if>
+      <if test="mainBoard != null">
+        main_board,
+      </if>
+      <if test="memoryType != null">
+        memory_type,
+      </if>
+      <if test="interfaceType != null">
+        interface_type,
+      </if>
+      <if test="extraInfo != null">
+        extra_info,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="basicPinlv != null">
+        #{basicPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="coreNum != null">
+        #{coreNum,jdbcType=INTEGER},
+      </if>
+      <if test="threadNum != null">
+        #{threadNum,jdbcType=INTEGER},
+      </if>
+      <if test="ludashiScore != null">
+        #{ludashiScore,jdbcType=DOUBLE},
+      </if>
+      <if test="sdmarkScore != null">
+        #{sdmarkScore,jdbcType=DOUBLE},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="power != null">
+        #{power,jdbcType=DOUBLE},
+      </if>
+      <if test="nami != null">
+        #{nami,jdbcType=INTEGER},
+      </if>
+      <if test="ruiPinlv != null">
+        #{ruiPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="superPinlv != null">
+        #{superPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="mainBoard != null">
+        #{mainBoard,jdbcType=VARCHAR},
+      </if>
+      <if test="memoryType != null">
+        #{memoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="interfaceType != null">
+        #{interfaceType,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null">
+        #{extraInfo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.feiqu.system.model.basicData.CpuExample" resultType="java.lang.Long">
+    select count(*) from cpu
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update cpu
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.basicPinlv != null">
+        basic_pinlv = #{record.basicPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="record.coreNum != null">
+        core_num = #{record.coreNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.threadNum != null">
+        thread_num = #{record.threadNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.ludashiScore != null">
+        ludashi_score = #{record.ludashiScore,jdbcType=DOUBLE},
+      </if>
+      <if test="record.sdmarkScore != null">
+        sdmark_score = #{record.sdmarkScore,jdbcType=DOUBLE},
+      </if>
+      <if test="record.gmtCreate != null">
+        gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.power != null">
+        power = #{record.power,jdbcType=DOUBLE},
+      </if>
+      <if test="record.nami != null">
+        nami = #{record.nami,jdbcType=INTEGER},
+      </if>
+      <if test="record.ruiPinlv != null">
+        rui_pinlv = #{record.ruiPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="record.superPinlv != null">
+        super_pinlv = #{record.superPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="record.mainBoard != null">
+        main_board = #{record.mainBoard,jdbcType=VARCHAR},
+      </if>
+      <if test="record.memoryType != null">
+        memory_type = #{record.memoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.interfaceType != null">
+        interface_type = #{record.interfaceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.extraInfo != null">
+        extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update cpu
+    set id = #{record.id,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      basic_pinlv = #{record.basicPinlv,jdbcType=DOUBLE},
+      core_num = #{record.coreNum,jdbcType=INTEGER},
+      thread_num = #{record.threadNum,jdbcType=INTEGER},
+      ludashi_score = #{record.ludashiScore,jdbcType=DOUBLE},
+      sdmark_score = #{record.sdmarkScore,jdbcType=DOUBLE},
+      gmt_create = #{record.gmtCreate,jdbcType=TIMESTAMP},
+      power = #{record.power,jdbcType=DOUBLE},
+      nami = #{record.nami,jdbcType=INTEGER},
+      rui_pinlv = #{record.ruiPinlv,jdbcType=DOUBLE},
+      super_pinlv = #{record.superPinlv,jdbcType=DOUBLE},
+      main_board = #{record.mainBoard,jdbcType=VARCHAR},
+      memory_type = #{record.memoryType,jdbcType=VARCHAR},
+      interface_type = #{record.interfaceType,jdbcType=VARCHAR},
+      extra_info = #{record.extraInfo,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.feiqu.system.model.basicData.Cpu">
+    update cpu
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="basicPinlv != null">
+        basic_pinlv = #{basicPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="coreNum != null">
+        core_num = #{coreNum,jdbcType=INTEGER},
+      </if>
+      <if test="threadNum != null">
+        thread_num = #{threadNum,jdbcType=INTEGER},
+      </if>
+      <if test="ludashiScore != null">
+        ludashi_score = #{ludashiScore,jdbcType=DOUBLE},
+      </if>
+      <if test="sdmarkScore != null">
+        sdmark_score = #{sdmarkScore,jdbcType=DOUBLE},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="power != null">
+        power = #{power,jdbcType=DOUBLE},
+      </if>
+      <if test="nami != null">
+        nami = #{nami,jdbcType=INTEGER},
+      </if>
+      <if test="ruiPinlv != null">
+        rui_pinlv = #{ruiPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="superPinlv != null">
+        super_pinlv = #{superPinlv,jdbcType=DOUBLE},
+      </if>
+      <if test="mainBoard != null">
+        main_board = #{mainBoard,jdbcType=VARCHAR},
+      </if>
+      <if test="memoryType != null">
+        memory_type = #{memoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="interfaceType != null">
+        interface_type = #{interfaceType,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null">
+        extra_info = #{extraInfo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.feiqu.system.model.basicData.Cpu">
+    update cpu
+    set name = #{name,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      basic_pinlv = #{basicPinlv,jdbcType=DOUBLE},
+      core_num = #{coreNum,jdbcType=INTEGER},
+      thread_num = #{threadNum,jdbcType=INTEGER},
+      ludashi_score = #{ludashiScore,jdbcType=DOUBLE},
+      sdmark_score = #{sdmarkScore,jdbcType=DOUBLE},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      power = #{power,jdbcType=DOUBLE},
+      nami = #{nami,jdbcType=INTEGER},
+      rui_pinlv = #{ruiPinlv,jdbcType=DOUBLE},
+      super_pinlv = #{superPinlv,jdbcType=DOUBLE},
+      main_board = #{mainBoard,jdbcType=VARCHAR},
+      memory_type = #{memoryType,jdbcType=VARCHAR},
+      interface_type = #{interfaceType,jdbcType=VARCHAR},
+      extra_info = #{extraInfo,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

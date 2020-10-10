@@ -1,0 +1,157 @@
+<style>
+</style>
+<%include("/common/_head.html"){}%>
+<%include("/common/admin_css.html"){}%>
+<div class="ibox-content">
+        <div class="c-panel fly-panel-user detail-box">
+            <div class="layui-row layui-col-space20">
+                <div class="layui-col-md12">
+                    <form id="menu-form" class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">菜单名称</label>
+                                <div class="layui-input-inline" style="width: 150px;">
+                                    <input type="text" name="menuName" class="layui-input"/>
+                                </div>
+                                <label class="layui-form-label">菜单状态</label>
+                                <div class="layui-input-inline" style="width: 150px;">
+                                    <select name="visible">
+                                        <option value="">所有</option>
+                                        <option value="0">显示</option>
+                                        <option value="1">隐藏</option>
+                                    </select>
+                                </div>
+                                <div class="layui-input-inline">
+                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.treeTable.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="btn-group-sm" id="toolbar" role="group">
+                    <%if(shiro.hasPermission('system:menu:add')){%>
+                    <a class="btn btn-success" onclick="$.operate.add(0)">
+                        <i class="fa fa-plus"></i> 新增
+                    </a>
+                    <%}%>
+                    <%if(shiro.hasPermission('system:menu:edit')){%>
+                    <a class="btn btn-primary" onclick="$.operate.edit()">
+                        <i class="fa fa-edit"></i> 修改
+                    </a>
+                    <%}%>
+                    <a class="btn btn-info" id="expandAllBtn">
+                        <i class="fa fa-exchange"></i> 展开/折叠
+                    </a>
+                </div>
+                <div class="col-sm-12 select-table table-striped">
+                    <table id="bootstrap-tree-table" data-mobile-responsive="true"></table>
+                </div>
+            </div>
+        </div>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script>
+    layui.use(['table','form'], function() {
+        var table=layui.table,fly=layui.fly,form=layui.form,device=layui.device();
+    });
+</script>
+<script>
+    var addFlag = "${shiro.hasPermi('system:menu:add')}";
+    var editFlag = "${shiro.hasPermi('system:menu:edit')}";
+    var removeFlag = "${shiro.hasPermi('system:menu:remove')}";
+    var datas = ${dict.getType('sys_show_hide')};
+    var prefix = ctx + "system/menu";
+    $(function() {
+        var options = {
+            code: "menuId",
+            parentCode: "parentId",
+            uniqueId: "menuId",
+            expandAll: false,
+            expandFirst: false,
+            url: prefix + "/list",
+            createUrl: prefix + "/add/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove/{id}",
+            modalName: "菜单",
+            columns: [{
+                field: 'selectItem',
+                radio: true
+            },
+                {
+                    title: '菜单名称',
+                    field: 'menuName',
+                    width: '20%',
+                    formatter: function(value, row, index) {
+                        if ($.common.isEmpty(row.icon)) {
+                            return row.menuName;
+                        } else {
+                            return '<i class="' + row.icon + '"></i> <span class="nav-label">' + row.menuName + '</span>';
+                        }
+                    }
+                },
+                {
+                    field: 'orderNum',
+                    title: '排序',
+                    width: '10%',
+                    align: "left"
+                },
+                {
+                    field: 'url',
+                    title: '请求地址',
+                    width: '15%',
+                    align: "left"
+                },
+                {
+                    title: '类型',
+                    field: 'menuType',
+                    width: '10%',
+                    align: "left",
+                    formatter: function(value, item, index) {
+                        if (item.menuType == 'M') {
+                            return '<span class="label label-success">目录</span>';
+                        }
+                        else if (item.menuType == 'C') {
+                            return '<span class="label label-primary">菜单</span>';
+                        }
+                        else if (item.menuType == 'F') {
+                            return '<span class="label label-warning">按钮</span>';
+                        }
+                    }
+                },
+                {
+                    field: 'visible',
+                    title: '可见',
+                    width: '10%',
+                    align: "left",
+                    formatter: function(value, row, index) {
+                        if (row.menuType == 'F') {
+                            return '-';
+                        }
+                        return $.table.selectDictLabel(datas, row.visible);
+                    }
+                },
+                {
+                    field: 'perms',
+                    title: '权限标识',
+                    width: '15%',
+                    align: "left",
+                },
+                {
+                    title: '操作',
+                    width: '20%',
+                    align: "left",
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.menuId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-info btn-xs ' + addFlag + '" href="javascript:void(0)" onclick="$.operate.add(\'' + row.menuId + '\')"><i class="fa fa-plus"></i>新增</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.menuId + '\')"><i class="fa fa-trash"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.treeTable.init(options);
+    });
+</script>
+</html>

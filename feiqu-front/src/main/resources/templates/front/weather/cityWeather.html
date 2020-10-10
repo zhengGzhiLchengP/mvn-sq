@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>该城市下的天气情况 -飞趣</title>
+    <style>
+        .hot-article li {
+            position: relative
+        }
+        .hot-article li a {
+            overflow: hidden;
+            max-width: 80%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .hot-article li em {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+        }
+        .news-single .news-body time {
+            position: absolute;
+            bottom: 0;
+            font-size: 16px;
+        }
+        .news-body img {
+            max-height: 100%;
+            max-width: 100%;
+        }
+        .ad-single {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">该城市下的天气情况</span>
+                    <span class="c-mid"></span>
+                    <a href="/wallPaper/category/${categoryId!}?order=new">最新的</a>
+                    <span class="c-mid"></span>
+                    <a href="/wallPaper/category/${categoryId!}?order=hot">最热的</a>
+                </div>
+                <div class="c-panel-body">
+                    <p>体感温度：${current.feelsLike.value}${current.feelsLike.unit}</p>
+                    <p>相对空气湿度：${current.humidity.value}${current.humidity.unit}</p>
+                    <p>气压：${current.pressure.value}${current.pressure.unit}</p>
+                    <p>温度：${current.temperature.value}${current.temperature.unit}</p>
+                    <p>能见度：${current.visibility.value}${current.visibility.unit}</p>
+                    <p>风信息 风速：${current.wind.speed.value}${current.wind.speed.unit}</p>
+                    <hr>
+                    接下来几天的温度
+                    <ul>
+                    <%for(var tem in forecastDaily.temperature.value){%>
+                    <li>${tem.to}${forecastDaily.temperature.unit} - ${tem.from}${forecastDaily.temperature.unit}</li>
+                    <%}%>
+                    </ul>
+                    <hr>
+                    接下来五天的降雨概率
+                    <ul>
+                    <%for(var pp in forecastDaily.precipitationProbability.value){%>
+                    <li>${pp}%</li>
+                    <%}%>
+                    </ul>
+                    <hr>
+                    <ul>
+                    <%for(var alert in alerts!){%>
+                    <li>发布时间：${alert.pubTime}<br>
+                        <p>${alert.title}</p>
+                        <p>${alert.detail}</p>
+                        <p>等级：${alert.level}</p>
+                        <p>${alert.type}</p>
+                        <%for(var de in alert.defense!){%>
+                        <img src="${de.defenseIcon}">${de.defenseText}<br>
+                        <%}%>
+                        <hr>
+                    </li>
+                    <%}%>
+                    </ul>
+                    空气相关
+                    <p>发行时间：${aqi.pubTime}</p>
+                    <p>建议：${aqi.suggest}</p>
+                    <p>空气质量指数：${aqi.aqi}</p>
+                    <p>二氧化硫指数：${aqi.so2}</p>
+                    <p>${aqi.pm10}</p>
+                    <p>pm10描述：${aqi.pm10Desc}</p>
+                    <p>${aqi.o3Desc}</p>
+                    <p>臭氧指数：${aqi.o3}</p>
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">广告位</div>
+                <div class="c-panel-body">
+                    <%for(var ad in advertisements!){%>
+                    <div class="ad-single">
+                        <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer', 'fly'], function () {
+    });
+</script>
+</html>

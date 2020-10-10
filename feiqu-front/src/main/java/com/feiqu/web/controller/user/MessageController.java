@@ -1,0 +1,172 @@
+package com.feiqu.web.controller.user;
+
+import com.feiqu.common.base.BaseResult;
+import com.feiqu.common.constant.BizConstant;
+import com.feiqu.common.enums.MsgEnum;
+import com.feiqu.common.enums.OrderEnum;
+import com.feiqu.common.enums.ResultEnum;
+import com.feiqu.common.enums.YesNoEnum;
+import com.feiqu.framwork.constant.CommonConstant;
+import com.feiqu.framwork.util.WebUtil;
+import com.feiqu.framwork.web.base.BaseController;
+import com.feiqu.system.model.CMessage;
+import com.feiqu.system.model.CMessageExample;
+import com.feiqu.system.model.FqUserExample;
+import com.feiqu.system.pojo.cache.FqUserCache;
+import com.feiqu.system.pojo.response.Dialog;
+import com.feiqu.system.pojo.response.MessageUserDetail;
+import com.feiqu.system.service.mainData.CMessageService;
+import com.feiqu.system.service.mainData.FqUserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+/**
+ * MessageController
+ *
+ * @author chenweidong
+ * @date 2017/11/21
+ */
+@RequestMapping("/message")
+@Controller
+public class MessageController extends BaseController {
+    private final static Logger logger = LoggerFactory.getLogger(MessageController.class);
+    @Resource
+    private WebUtil webUtil;
+    @Resource
+    private CMessageService messageService;
+    @Resource
+    private FqUserService fqUserService;
+
+    /*@GetMapping("/manage/list")
+    @ResponseBody
+    public Object list(Integer page) {
+        BaseResult result = new BaseResult();
+        try {
+            PageHelper.startPage(page, CommonConstant.DEAULT_PAGE_SIZE);
+            CMessageExample example = new CMessageExample();
+            example.setOrderByClause("create_time desc");
+            List<CMessage> messages = messageService.selectByExample(example);
+            PageInfo pageInfo = new PageInfo(messages);
+            result.setData(pageInfo);
+        } catch (Exception e) {
+            logger.error("信息分页出错", e);
+            result.setResult(ResultEnum.SYSTEM_ERROR);
+        }
+        return result;
+    }*/
+
+    @PostMapping("read")
+    @ResponseBody
+    public Object read(HttpServletRequest request, HttpServletResponse response) {
+        BaseResult result = new BaseResult();
+        try {
+            FqUserCache fqUser = webUtil.currentUser(request, response);
+            CMessageExample example = new CMessageExample();
+            example.createCriteria().andReceivedUserIdEqualTo(fqUser.getId()).andDelFlagEqualTo(YesNoEnum.NO.getValue());
+            CMessage message = new CMessage();
+            message.setIsRead(YesNoEnum.YES.getValue());
+            messageService.updateByExampleSelective(message, example);
+        } catch (Exception e) {
+            logger.error("消息已读失败", e);
+            result.setResult(ResultEnum.FAIL);
+        }
+        return result;
+    }
+
+    @PostMapping("/delDialog/{uId}")
+    @ResponseBody
+    public Object delDialog(@PathVariable Integer uId, HttpServletRequest request, HttpServletResponse response) {
+        BaseResult result = new BaseResult();
+        logger.info("删除对话 uid:" + uId);
+
+        try {
+            FqUserCache fqUser = webUtil.currentUser(request, response);
+            if (fqUser == null) {
+                return ResultEnum.USER_NOT_FOUND;
+            }
+            logger.error(fqUser.getId() + "删除对话：" + uId);
+            CMessageExample example = new CMessageExample();
+            example.createCriteria().andReceivedUserIdEqualTo(fqUser.getId()).andPostUserIdEqualTo(uId);
+            CMessage message = new CMessage();
+            message.setDelFlag(YesNoEnum.YES.getValue());
+            messageService.updateByExampleSelective(message, example);
+        } catch (Exception e) {
+            logger.error("消息删除失败", e);
+            result.setResult(ResultEnum.FAIL);
+        }
+        return result;
+    }
+
+    @GetMapping("dialogs")
+    public String dialog(Model model) {
+        try {
+            FqUserCache user = getCurrentUser();
+            if (user == null) {
+                return loginRedirect("/message/dialogs");
+            }
+            CMessageExample example = new CMessageExample();
+            example.createCriteria().andTypeEqualTo(MsgEnum.OFFICIAL_MSG.getValue())
+                    .andDelFlagEqualTo(YesNoEnum.NO.getValue())
+                    .andReceivedUserIdEqualTo(user.getId());
+            example.setOrderByClause("id desc");
+            //拿到官方消息第一条
+            PageHelper.startPage(1, BizConstant.DEAULT_PAGE_SIZE,false);
+            List<CMessage> sysMessages = messageService.selectByExample(example);
+            model.addAttribute("sysMessages", sysMessages);
+            //只拿到好友的消息
+            List<Dialog> dialogs = messageService.selectDialogsByUserId(user.getId());
+            model.addAttribute("dialogs", dialogs);
+        } catch (Exception e) {
+            logger.error("对话页面失败", e);
+            return GENERAL_ERROR_URL;
+        }
+        return "/user/dialogs";
+    }
+
+    /*
+    查看对话
+     */
+    @GetMapping("/dialog/{userId}")
+    public String msgs(HttpServletRequest request, HttpServletResponse response,
+                       @RequestParam(defaultValue = "0") Integer pageIndex,
+                       @PathVariable Integer userId, @RequestParam(defaultValue = "desc") String order) {
+        FqUserCache user = webUtil.currentUser(request, response);
+        if (user == null) {
+            return "redirect:/u/login?rsUrl=" + CommonConstant.DOMAIN_URL + request.getRequestURI();
+        }
+        if (!OrderEnum.ASC.getCode().equals(order) && !OrderEnum.DESC.getCode().equals(order)) {
+            return "redirect:/message/dialogs";
+        }
+        int myUserId = user.getId(), friendUserId = userId;
+
+        FqUserExample userExample = new FqUserExample();
+        userExample.createCriteria().andIdEqualTo(userId);
+        int userCount = fqUserService.countByExample(userExample);
+        //userId -1 代表系统消息
+        if (userId != -1 && userCount <= 0) {
+            return "redirect:/message/dialogs";
+        }
+        PageHelper.startPage(pageIndex, CommonConstant.DEAULT_PAGE_SIZE);
+
+        List<MessageUserDetail> messages = messageService.selectDialogDetail(myUserId, friendUserId, order);
+
+//        List<MessageUserDetail> messages = messageService.selectMyMsgsByMessage(messageExample);
+        PageInfo page = new PageInfo(messages);
+        request.setAttribute("postUserId", userId);
+        request.setAttribute("count", page.getTotal());
+        request.setAttribute("messages", messages);
+        request.setAttribute("pageIndex", pageIndex);
+        request.setAttribute("pageSize", CommonConstant.DEAULT_PAGE_SIZE);
+        return "/user/msgs";
+    }
+}

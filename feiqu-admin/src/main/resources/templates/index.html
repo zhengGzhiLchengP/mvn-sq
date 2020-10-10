@@ -1,0 +1,96 @@
+<%
+layout("/common/_fq_layout.html",{title:'首页'}){
+%>
+<link rel="stylesheet" href="${ctxPath}/css/admin.css?v=${CSS_VERSION}">
+<link rel="stylesheet" href="${ctxPath}/css/font-awesome.min.css">
+<link href="${ctxPath}/css/jquery.contextMenu.min.css" rel="stylesheet"/>
+<style>
+    .layui-fluid {
+        height: 100%;
+        padding: 0;
+    }
+
+    .height100 {
+        height: 100%;
+    }
+
+    #page-wrapper {
+        padding: 0;
+        position: inherit;
+        margin: 0 0 0 200px;
+    }
+
+    iframe body {
+        padding: 20px;
+    }
+
+    @media (max-width: 768px)
+        .navbar-header {
+            display: inline;
+            float: left;
+        }
+</style>
+<div class="layui-fluid">
+    <div class="layui-row height100">
+        <%include("/common/_admin_menu.html"){}%>
+        <div id="page-wrapper" class="height100 ">
+            <div class="navbar navbar-static-top" style="margin-bottom: 0">
+                <ul class="layui-nav c-nav navbar-header">
+                    <li class="layui-nav-item">
+                        <div class="navbar-header">
+                            <a class="navbar-minimalize minimalize-styl-2" style="color:#FFF;" href="#" title="收起菜单">
+                                <i class="fa fa-bars"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="layui-nav-item"><a target="_blank" href="https://www.f2qu.com">社区</a></li>
+                </ul>
+                <ul class="layui-nav cwd-nav-user">
+                    <li class="layui-nav-item">
+                        <a class="c-nav-icon" href="#">
+                            <cite id="head-nickname">${user.userName}</cite>
+                            <img id="head-user-icon" src="${user.avatar}">
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="${ctxPath}/system/user/profile" class="menuItem">个人中心</a></dd>
+                            <dd><a onclick="resetPwd()" class="menuItem">修改密码</a></dd>
+                            <dd><a href="${ctxPath}/logout">登出</a></dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="layui-row content-tabs">
+                <button class="roll-nav roll-left tabLeft">
+                    <i class="fa fa-backward"></i>
+                </button>
+                <nav class="page-tabs menuTabs">
+                    <div class="page-tabs-content">
+                        <a href="javascript:;" class="active menuTab" data-id="/admin/main">首页</a>
+                    </div>
+                </nav>
+                <a href="#" class="roll-nav roll-right tabReload"><i class="fa fa-refresh"></i> 刷新</a>
+            </div>
+            <a id="ax_close_max" class="ax_close_max" href="#" title="关闭全屏"> <i
+                    class="fa fa-times-circle-o"></i> </a>
+            <div class="row mainContent " id="content-main">
+                <iframe class="RuoYi_iframe" name="iframe0" width="100%" height="100%" data-id="/admin/main"
+                        src="/system/main" frameborder="0" seamless></iframe>
+            </div>
+            <div class="footer">
+                <div class="pull-right">© 2019 FEIQU Copyright</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.cache.page = 'admin'
+
+    function resetPwd() {
+        var url = ctx + 'system/user/profile/resetPwd';
+        $.modal.open("重置密码", url, '800', '500');
+    }
+</script>
+<script src="/js/jquery.contextMenu.min.js"></script>
+<script src="/ajax/libs/fullscreen/jquery.fullscreen.js"></script>
+<% } %>

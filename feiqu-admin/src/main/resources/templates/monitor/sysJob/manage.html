@@ -1,0 +1,333 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div class="layui-btn-group demoTable">
+                    <button class="layui-btn" data-type="runAll">全部启用</button>
+                    <button class="layui-btn" data-type="pauseAll">全部暂停</button>
+                    <button class="layui-btn" data-type="removeAll">全部删除</button>
+                    <button class="layui-btn" data-type="showLog">日志</button>
+                </div>
+                <table class="layui-hide" id="sysJobManage" lay-filter="sysJob"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="run">执行</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                </script>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form', 'layer'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device(), layer = layui.layer;
+        var active = {
+            runAll: function () {
+                var checkStatus = table.checkStatus('sysJobReload')
+                    , data = checkStatus.data;
+                if (data.length < 1) {
+                    layer.msg('请至少选中一个');
+                    return
+                }
+                var ids = data.map(function (item) {
+                    return item.jobId;
+                })
+                var data = {"ids": ids.join(','), status: '0'};
+                fly.json('/monitor/job/changeStatus', data, function () {
+                    layer.msg('启动成功');
+                })
+            }, pauseAll: function () {
+                var checkStatus = table.checkStatus('sysJobReload')
+                    , data = checkStatus.data;
+                if (data.length < 1) {
+                    layer.msg('请至少选中一个');
+                    return
+                }
+                var ids = data.map(function (item) {
+                    return item.jobId;
+                })
+                var data = {"ids": ids.join(','), status: '1'};
+                fly.json('/monitor/job/changeStatus', data, function () {
+                    layer.msg('暂停成功');
+                })
+            }, removeAll: function () { //获取选中数据
+                var checkStatus = table.checkStatus('sysJobReload')
+                    , data = checkStatus.data;
+                if (data.length < 1) {
+                    layer.msg('请至少选中一个');
+                    return
+                }
+                var ids = data.map(function (item) {
+                    return item.jobId;
+                })
+                var data = {"ids": ids.join(',')};
+                fly.json('/monitor/job/remove', data, function () {
+                    layer.msg('删除成功');
+                })
+            }, showLog: function () {
+                var url = ctx + 'monitor/jobLog';
+                createMenuItem(url, "调度日志");
+            }
+        };
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        table.render({
+            elem: '#sysJobManage'
+            , url: '/monitor/job/list'
+            , toolbar: '#headToolbar'
+            , title: '数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'jobId', width: 80, fixed: 'left', type: 'checkbox'},
+                {field: 'jobId', title: 'ID', width: 50, fixed: 'left', unresize: true, sort: true},
+                {field: 'jobGroup', title: '任务组', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'jobName', title: '任务名称', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'cronExpression', title: '任务表达式', width: 150, fixed: 'left', unresize: true, sort: true},
+                {field: 'methodName', title: '方法名称', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'methodParams', title: '参数', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'createTime', title: '创建时间', width: 150, fixed: 'left', unresize: false, sort: true},
+                {field: 'misfirePolicy', title: '错误策略', width: 80, fixed: 'left', unresize: false, sort: true},
+                {field: 'status', title: '状态', width: 80, fixed: 'left', unresize: false, sort: true},
+                {field: 'concurrent', title: '并发控制', width: 80, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 150, align: 'center', toolbar: '#bar'}
+            ]]
+            , page: true
+            , response: {
+                statusCode: '0000',
+                msgName: 'message'
+            }
+            , id: 'sysJobReload'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(sysJob)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 1
+                        , id: 'fq_sysJob'
+                        , title: '新增定时任务'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">任务名称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="jobName" lay-verify="required" placeholder="任务名称(bean的名称)"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">任务组名</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="jobGroup" lay-verify="required" placeholder="任务组名（用于分组）"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">任务方法</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="methodName" lay-verify="required" placeholder="任务方法"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">方法参数</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="methodParams" placeholder="方法参数"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">cron执行表达式</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="cronExpression" lay-verify="required" placeholder="cron执行表达式"  class="layui-input">'
+                            , '</div><a id="cronExpression" class="layui-btn">验证</a><span class="matchedDates"></span>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">错误策略</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="misfirePolicy" lay-verify="required" placeholder="计划执行错误策略（1立即执行 2执行一次 3放弃执行）"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">是否并发执行</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="concurrent" lay-verify="required" placeholder="是否并发执行（0允许 1禁止）"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">备注信息</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="remark"  placeholder="备注信息"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="sysJob" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            $('#cronExpression').click(function () {
+                                var $this = $(this);
+                                fly.json('/monitor/job/matchedDates', {cronExpression: $('input[name="cronExpression"]').val()}, function (res) {
+                                    console.log(res)
+                                    if (res) {
+                                        var str = '';
+                                        $.each(res.data, function (index, item) {
+                                            str += item + "<br>";
+                                        })
+                                        $('.matchedDates').html(str);
+                                    }
+                                })
+                            })
+                            form.on('submit(sysJob)', function (data) {
+                                fly.json('/monitor/job/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('sysJobReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+            ;
+        });
+        table.on('tool(sysJob)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个友链么', function (index) {
+                    fly.json('/monitor/job/manage/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('sysJobReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'run') {
+                layer.confirm('确认要立即执行任务吗？', function (index) {
+                    fly.json('/monitor/job/run?jobId=' + obj.data.jobId, {}, function (res) {
+                        layer.msg('操作成功！');
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'edit') {
+                layer.open({
+                    type: 1
+                    , id: 'fq_sysJob'
+                    , title: '编辑任务'
+                    , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                    , content: ['<ul class="layui-form" style="margin: 20px;">'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">任务名称</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="jobName" lay-verify="required" placeholder="任务名称" value="' + data.jobName + '" class="layui-input">'
+                        , '<input type="hidden" name="jobId" value="' + data.jobId + '">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">任务组名</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="jobGroup" lay-verify="required" placeholder="任务组名" value="' + data.jobGroup + '" class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">任务方法</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="methodName" lay-verify="required" placeholder="任务方法" value="' + data.methodName + '"  class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">方法参数</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="methodParams" placeholder="方法参数" value="' + data.methodParams + '" class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">cron执行表达式</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="cronExpression" lay-verify="required" value="' + data.cronExpression + '" placeholder="cron执行表达式"  class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">是否并发执行</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="concurrent" lay-verify="required" value="' + data.concurrent + '" placeholder="是否并发执行（0允许 1禁止）"  class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">错误策略</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="misfirePolicy" lay-verify="required" value="' + data.misfirePolicy + '" placeholder="计划执行错误策略（1立即执行 2执行一次 3放弃执行）"  class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">状态</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="status" lay-verify="required" value="' + data.status + '" placeholder="状态（0正常 1暂停"  class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">备注信息</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="remark"  placeholder="备注信息" value="' + data.remark + '"  class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<div class="layui-input-block">'
+                        , '<button type="button" lay-submit lay-filter="sysJob" class="layui-btn">保存</button>'
+                        , '</div>'
+                        , '</li>'
+                        , '</ul>'].join('')
+                    , success: function (layero, index) {
+                        form.on('submit(sysJob)', function (data) {
+                            fly.json('/monitor/job/save', data.field, function (res) {
+                                layer.close(index);
+                                layer.msg('保存成功！', {
+                                    icon: 1
+                                })
+                                table.reload('sysJobReload', {
+                                    page: {
+                                        curr: 1
+                                    }
+                                });
+                            });
+                            return false;
+                        })
+                    }
+                });
+            }
+        });
+    });
+</script>
+</html>

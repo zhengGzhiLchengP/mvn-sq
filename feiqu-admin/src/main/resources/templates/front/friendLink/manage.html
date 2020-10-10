@@ -1,0 +1,178 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <table class="layui-hide" id="fqFriendLinkManage" lay-filter="fqFriendLink"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                </script>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device();
+        table.render({
+            elem: '#fqFriendLinkManage'
+            , url: '/front/friendLink/manage/list'
+            , toolbar: '#headToolbar'
+            , title: '友链数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'linkName', title: '友链名称', width: 150, fixed: 'left', unresize: true, sort: true},
+                {
+                    field: 'linkUrl',
+                    title: '友链地址',
+                    width: 200,
+                    fixed: 'left',
+                    unresize: true,
+                    sort: true,
+                    templet: '#urlTpl'
+                },
+                {field: 'createTime', title: '创建时间', width: 160, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 160, align: 'center', toolbar: '#bar'}
+            ]]
+            , page: true
+            , response: {
+                statusCode: '0000',
+                msgName: 'message'
+            }
+            , id: 'fqFriendLinkReload'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(fqFriendLink)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 1
+                        , id: 'fq_fqFriendLink'
+                        , title: '新增友链'
+                        , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                        , content: ['<ul class="layui-form" style="margin: 20px;">'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">友链名称</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="linkName" lay-verify="required" placeholder="友链名称"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<label class="layui-form-label">友链url</label>'
+                            , '<div class="layui-input-block">'
+                            , '<input required name="linkUrl" lay-verify="url" placeholder="友链url"  class="layui-input">'
+                            , '</div>'
+                            , '</li>'
+                            , '<li class="layui-form-item">'
+                            , '<div class="layui-input-block">'
+                            , '<button type="button" lay-submit lay-filter="fqFriendLink" class="layui-btn">保存</button>'
+                            , '</div>'
+                            , '</li>'
+                            , '</ul>'].join('')
+                        , success: function (layero, index) {
+                            form.on('submit(fqFriendLink)', function (data) {
+                                fly.json('/front/friendLink/manage/save', data.field, function (res) {
+                                    layer.close(index);
+                                    layer.msg('保存成功！', {
+                                        icon: 1
+                                    })
+                                    table.reload('fqFriendLinkReload', {
+                                        page: {
+                                            curr: 1
+                                        }
+                                    });
+                                });
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+            ;
+        });
+        table.on('tool(fqFriendLink)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个友链么', function (index) {
+                    fly.json('/front/friendLink/manage/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('fqFriendLinkReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'edit') {
+                layer.open({
+                    type: 1
+                    , id: 'fq_fqFriendLink'
+                    , title: '编辑友链'
+                    , area: (device.ios || device.android) ? ($(window).width() + 'px') : '660px'
+                    , content: ['<ul class="layui-form" style="margin: 20px;">'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">友链名称</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="linkName" lay-verify="required" placeholder="友链名称" value="' + data.linkName + '" class="layui-input">'
+                        , '<input type="hidden" name="id" value="' + data.id + '">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">案例友链</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="linkUrl" lay-verify="url" placeholder="友链url" value="' + data.linkUrl + '" class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<div class="layui-input-block">'
+                        , '<button type="button" lay-submit lay-filter="fqFriendLink" class="layui-btn">保存</button>'
+                        , '</div>'
+                        , '</li>'
+                        , '</ul>'].join('')
+                    , success: function (layero, index) {
+                        form.on('submit(fqFriendLink)', function (data) {
+                            fly.json('/front/friendLink/manage/save', data.field, function (res) {
+                                layer.close(index);
+                                layer.msg('保存成功！', {
+                                    icon: 1
+                                })
+                                table.reload('fqFriendLinkReload', {
+                                    page: {
+                                        curr: 1
+                                    }
+                                });
+                            });
+                            return false;
+                        })
+                    }
+                });
+            }
+        });
+    });
+</script>
+</html>

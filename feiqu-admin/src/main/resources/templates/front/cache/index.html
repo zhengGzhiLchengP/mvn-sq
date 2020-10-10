@@ -1,0 +1,153 @@
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div class="layui-tab">
+                    <ul class="layui-tab-title">
+                        <li>黑名单管理</li>
+                        <li>访问IP管理</li>
+                        <li>便捷操作</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <form class="layui-form layui-form-pane" action="/front/cache/blacklist/add" method="post">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">黑名单IP</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="ip" required  lay-verify="required" placeholder="请输入要加入黑名单的IP" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                        <button class="layui-btn" alert="true" lay-submit lay-filter="*">加入黑名单</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <a href="javascript:;" class="layui-btn removeAllIp">移除所有黑名单</a>
+                            <table  id="blackListManage" class="layui-table">
+                                <thead>
+                                <tr>
+                                    <td>IP</td>
+                                    <td>操作</td>
+                                </tr>
+                                </thead>
+                                <tbody class="blackListTableBody">
+                                <%for(var ip in ips!){%>
+                                <tr lay-data="${ip}">
+                                    <td>${ip}</td>
+                                    <td><button class="layui-btn layui-btn-danger layui-btn-sm del">删除</button></td>
+                                </tr>
+                                <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="layui-inline"> <!-- 注意：这一层元素并不是必须的 -->
+                                <input type="text" class="layui-input" id="test1">
+                            </div>
+                            <table class="layui-table">
+                                <colgroup>
+                                    <col width="150">
+                                    <col width="200">
+                                    <col>
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>IP</th>
+                                    <th>访问次数</th>
+                                    <th>访问地址</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <%for(var kv in visitIps){%>
+                                <tr>
+                                    <td>${kv.ip}</td>
+                                    <td>${kv.visitNum}</td>
+                                    <td>${kv.visitArea}</td>
+                                </tr>
+                                <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table">
+                                <colgroup>
+                                    <col width="150">
+                                    <col width="200">
+                                    <col>
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>key名称</th>
+                                    <th>key的值</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <%for(var key in keys){%>
+                                <tr lay-data="${key}">
+                                    <td>${key}</td>
+                                    <td><a href="javascript:;" class="layui-btn getkey"> 获取key的值</a></td>
+                                    <td><input type="text"><a href="javascript:;" class="layui-btn setkey"> 设置值</a></td>
+                                    <td><a href="javascript:;" class="layui-btn delkey"> 删除值</a></td>
+                                </tr>
+                                <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html"){}%>
+<script>
+    layui.use(['layer', 'table', 'fly', 'form','laydate'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, layer = layui.layer,laydate = layui.laydate, device = layui.device();
+        $('.getkey').on('click', function () {
+            var data = {key: $(this).parent().prev('td').html()};
+            fly.json("/front/cache/list", data, function (res) {
+                alert(res.data)
+            })
+        })
+        $('.removeAllIp').on('click',function () {
+            fly.json("/front/cache/blacklist/removeAll", function (res) {
+                layer.msg(res.data)
+                location.reload()
+            })
+        })
+        $('.setkey').on('click', function () {
+            var data = {
+                key: $(this).parents('tr').attr("lay-data"),
+                value: $(this).prev().val()
+            };
+            fly.json("/front/cache/set", data, function (res) {
+                alert(res.data)
+            })
+        })
+        $('.delkey').on('click', function () {
+           var key = $(this).parents('tr').attr("lay-data")
+            fly.json("/front/cache/deletekey?key="+key, function (res) {
+                $.modal.alertSuccess(res.data)
+            })
+        })
+        $('.del').on('click',function () {
+            var $tr = $(this).parents('tr');
+            var ip = $tr.attr('lay-data');
+            fly.json('/front/cache/blacklist/remove',{ip:ip},function (res) {
+                layer.msg('移除黑名单成功！');
+                $tr.fadeOut(1000);
+            })
+        })
+        laydate.render({
+            elem: '#test1' //指定元素
+            ,done: function(value, date, endDate){
+                location.href='/front/cache?queryDate='+value
+            }
+        });
+    });
+</script>
+</html>

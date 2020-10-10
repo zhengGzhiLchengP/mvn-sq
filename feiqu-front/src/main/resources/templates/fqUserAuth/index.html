@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>精品图片 -飞趣</title>
+    <style>
+        #doutuContainer li{
+            margin-top: 10px;
+        }
+        #doutuContainer .fq-box-center span{
+            cursor: pointer;
+        }
+        .fq-top{
+            justify-content: space-between;
+        }
+        .all-pic img{
+            max-width: 100%;
+        }
+        .see-more{
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    VIP精品图片广场
+                </div>
+                <div class="c-panel-body">
+                    <ul id="doutuContainer" class="">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">广告位</div>
+                <div class="c-panel-body">
+                    <%for(var ad in advertisements!){%>
+                    <div class="ad-single">
+                        <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<script src="https://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="${ctxPath}/layui/layui.js"></script>
+<script>
+    layui.cache.user ={username:'${user.nickname!}' ,userId:${user.id!0} ,icon:'${user.icon!}'};
+    layui.cache.domainUrl = '${DOMAIN_URL!}';
+    layui.config({
+        version: "${LAYUI_VERSION}"
+        ,base:'${ctxPath}/lay/modules/fly/'
+    }).extend({fly: 'cool'});
+</script>
+<script>
+    var device = layui.device();
+    layui.use(['table','fly','form','layer','flow'], function() {
+        var layer=layui.layer,flow=layui.flow,form=layui.form,fly=layui.fly,isLogin = layui.cache.user.userId>0;
+        flow.load({
+            elem: '#doutuContainer'
+            ,done: function(page, next){
+                var lis = [];
+                $.get('/fqGoodPic/list?index='+page, function(res){
+                    layui.each(res.data.list, function(index, item){
+                        var imgs = item.picUrlList.split(',');
+                        lis.push(['<li data-id="'+item.id+'" lay-data="'+item.picUrlList+'"><div class="fq-top">' +
+                        '<div class="fq-box-dir"><div class="fq-text-box"><h4>',item.gmtCreate, '</h4></div></div><a class="see-more">查看更多</a>'
+                            ,'</div>',
+                            ,'<div>',item.title ,'</div>',
+                            ,'<div class="photos"><img data-cursor="big" src="',imgs[0],'"/></div>'
+                            ,'<hr>',
+                            '</li>'].join(''));
+                    });
+                    next(lis.join(''), page < res.data.pages);
+                    layer.photos({
+                        photos: '.photos'
+                        ,zIndex: 9999999999
+                        ,anim: 5
+                    });
+                    $('.see-more').on('click',function () {
+                        var li = $(this).parents('li');
+                        var picUrlList = li.attr('lay-data');
+                        var imgs = picUrlList.split(',');
+                        var imgHtml = '';
+                        layui.each(imgs, function(index, item){
+                            imgHtml += '<li><img src="'+item+'"><hr></li>';
+                        })
+                        layer.open({
+                            type: 1
+                            ,id: 'fq_good_img'
+                            ,title: '查看全部'
+                            ,area:  ($(window).width() + 'px')
+                            ,content: ['<ul class="all-pic" style="margin: 20px;">'
+                                ,imgHtml
+                                ,'</ul>'].join('')
+                        });
+                    })
+                });
+            }
+        });
+    })
+</script>
+</html>

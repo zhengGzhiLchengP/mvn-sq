@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>${fqChangeLogCollect.title} -飞趣</title>
+    <meta name="description" content="${fqChangeLogCollect.title}">
+    <style>
+        .user-info a {
+            padding-right: 10px;
+            font-size: 14px
+        }
+        .art-detail img {
+            max-width: 100%;
+        }
+        .comment-body a {
+            color: #4f99cf;
+            text-decoration: none;
+            transition: all .5s
+        }
+        .detail-time span {
+            height: 20px;
+            line-height: 20px
+        }
+        .comment-list li {
+            position: relative;
+            padding: 20px 0 10px;
+            border-bottom: 1px dotted #DFDFDF
+        }
+        .detail-box p {
+            line-height: 2rem
+        }
+        .art-content {
+            color: #262626;
+            word-wrap: break-word;
+        }
+        .art-content a {
+            color: #01AAED
+        }
+        .c-detail-title {
+            margin: 0 50px
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-body">
+                    <h2 class="c-detail-title c-text-center"> ${fqChangeLogCollect.title}</h2>
+                    <div class="art-content">${fqChangeLogCollect.content}</div>
+                    <%include("/common/_baidushare.html",{positon:'article-share'}){}%>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel">
+                <div class="c-panel-title">广告位</div>
+                <div class="c-panel-body">
+                    <%for(var ad in advertisements!){%>
+                    <div class="ad-single">
+                        <a target="_blank" href="${ad.adHref!}"><img src="${ad.picUrl!}"></a>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer', 'form', 'fly', 'face'], function () {
+        var layer = layui.layer
+        ;
+
+
+    })
+</script>
+</html>

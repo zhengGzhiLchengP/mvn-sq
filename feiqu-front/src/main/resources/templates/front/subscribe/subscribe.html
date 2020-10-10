@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>订阅服务 -飞趣</title>
+    <style>
+        #menus li {
+            border: 1px solid #f2f2f2;
+        }
+
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="c-panel">
+                <div class="c-panel-title">菜单订阅
+                </div>
+                <div class="c-panel-body">
+                    <div>
+                        <ul class="layui-row layui-col-space10 fly-shortcut" id="menus">
+                        </ul>
+                    </div>
+                    <% if (user.role > 0) {%>
+                    <div>
+                        <li class="layui-col-sm2 layui-col-xs4"><a class="c-fly-link" target="_blank" href="/fqGoodPic">精品图片</a>
+                        </li>
+                    </div>
+                    <%}%>
+                    <div class="layui-btn-container">
+                        <button type="button" class="layui-btn" lay-demotransferactive="subscribe">订阅右侧菜单</button>
+                        <button type="button" class="layui-btn" lay-demotransferactive="reload">重载实例</button>
+                    </div>
+                    <div id="test7" class="demo-transfer"></div>
+                    <%for(var f in fqMenus){%>
+                    <a class="c-fly-link" href="${f.url}">${f.menuName}</a>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    var layer = layui.layer, util = layui.util, transfer = layui.transfer;
+    var allData = ${fqMenus!};
+    var sublist = ${sublist!1};
+    var key = 'subkey';
+    //实例调用
+    transfer.render({
+        title: ['未订阅', '待订阅'],
+        elem: '#test7'
+        , data: allData
+        , id: key //定义唯一索引
+        , value: sublist
+        , showSearch: true
+    })
+    var subscribedData = transfer.getData(key);
+    var strs = []
+    subscribedData.forEach(function (e) {
+        strs.push('<li class="layui-col-sm2 layui-col-xs4"><a class="c-fly-link" target="_blank" href="' + e.url + '">' + e.title + '</a></li>')
+    })
+    var str = strs.join('')
+    $('#menus').html(str)
+    //批量办法定事件
+    util.event('lay-demoTransferActive', {
+        subscribe: function (othis) {
+            var getData = transfer.getData(key); //获取右侧数据
+            var menuIds = [];
+            getData.forEach(function (e) {
+                menuIds.push(e.value);
+            })
+            if (menuIds.length == 0) {
+                $.modal.msgError("至少选一个")
+                return
+            }
+            var postData = {
+                menuIds: menuIds
+            }
+            $.operate.json('/subscribe/subscribeMenu', postData, function (result) {
+                layer.msg("订阅成功！", {icon: 6})
+                location.reload()
+            })
+        }
+        , reload: function () {
+            transfer.reload(key, {
+                title: ['未订阅', '已订阅'],
+                elem: '#test7'
+                , data: allData
+                , id: key
+                , value: sublist
+                , showSearch: true
+            })
+        }
+    });
+</script>
+</html>

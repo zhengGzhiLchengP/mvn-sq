@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>热点数据 -飞趣</title>
+    <style>
+        .hotsingle {
+            line-height: 30px;
+        }
+        .dialog {
+            height: 310px;
+            overflow-y: scroll;
+            word-break: break-word;
+            font-size: 13px;
+        }
+        .dialog li{
+            margin: 5px 0;
+        }
+        .ws-content {
+            height: 100px;
+        }
+        .imgleft {
+            width: 45px;
+            height: 45px;
+            margin: 0;
+            border-radius: 2px;
+        }
+        #online-list li{
+            cursor: pointer;
+        }
+        .mysend{
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first"><a class="" href="/hotTopic">热点</a></span>
+                    <span class="c-mid"></span>
+                    <label>切换</label>
+                    <select class="layui-select selectTopic">
+                        <option value="">所有</option>
+                        <option value="微博">微博</option>
+                        <option value="知乎">知乎</option>
+                        <option value="微信">微信</option>
+                        <option value="36氪">36氪</option>
+                        <option value="值得买">值得买</option>
+                        <option value="IT之家">IT之家</option>
+                        <option value="虎嗅网">虎嗅网</option>
+                        <option value="V2EX">V2EX</option>
+                        <option value="哔哩哔哩">哔哩哔哩</option>
+                    </select>
+                    <span class="c-mid"></span>
+                    <span>已有${watchCountInt!0}次围观</span>
+                </div>
+                <div class="c-panel-body">
+                    <input id="findHotTopic" placeholder="寻找热点" class="layui-input">
+                </div>
+                <div class="c-panel-body " id="hotTopic-list">
+                </div>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <%include("/common/_advertisements.html"){}%>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+</script>
+<script src="${ctxPath}/js/ws/im.js?v=16"></script>
+</html>

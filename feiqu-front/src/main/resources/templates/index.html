@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>飞趣社区 -让生活更有趣</title>
+</head>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+%>
+<%
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<body>
+<style>
+    .c-list-info{position:relative;overflow:hidden;font-size:13px;line-height:2;color:#999}
+    .detail-box{line-height:26px}
+    .detail-body{min-height:0;margin-top:0;line-height:24px;font-size:14px}
+    .detail-about .fly-avatar{left:0;top:0}
+    .detail-about{padding:0 0 0 55px;background:none;width: 200px}
+    .thought-body{margin:25px 0 20px;min-height:0;line-height:24px;font-size:14px}
+    .detail-body{min-height:0;margin-top:0;line-height:24px;font-size:14px}
+    .c-reply-block{-webkit-box-shadow:0 1px 3px 0 rgba(0,33,77,.05);box-shadow:0 1px 3px 0 rgba(0,33,77,.05);margin-top:12px;overflow:visible;border-radius:4px}
+    .reply-input{padding:5px 12px !important;position:relative}
+    .reply-input input{width:80%;background:none}
+    .reply-input button{position:absolute;right:10px;top:5px}
+    .comments span{padding-right:0}
+    .c-signin cite{padding:0 5px;color:#FF5722;font-style:normal}
+    .detail-about .fly-avatar{left:0;top:0}
+    .detail-about{padding:0 0 0 55px;background:none}
+    .thought-body{margin:25px 0 20px;min-height:0;line-height:24px;font-size:14px}
+    .sign-days-div{text-align:center;padding-top:20px}
+    .sayout{font-family:Helvetica,'Hiragino Sans GB','Microsoft Yahei','微软雅黑',Arial,sans-serif}
+    .t-intro{display:inline-block;vertical-align:top;height:21px;letter-spacing:3.8px;color:#1b7fb6}
+    .layui-textarea{margin-top:5px}
+    #pagesplit-head .layui-laypage{margin:0}
+    .home-main{margin-left:208px}
+    .reply-input span{position:absolute;right:22%;cursor:pointer;padding:0 10px;line-height:38px;color:#ffa405}
+    .c-reply span{width: 33%;float: left;padding-right: 0;text-align: center}
+    .page-head {position: absolute;right: 15px;top:0;}
+    .global-write-nav{
+        justify-content: space-evenly;
+    }
+    .GlobalWrite-navItem{
+        margin: 7px;
+    }
+    .emoji-list{
+        height: 304px;
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+
+    .t-list li {
+        border-bottom: 1px solid #f0f2f7
+    }
+    .zanok {
+        color: #c00 !important;
+    }
+    b
+</style>
+<div class="layui-container layui-clear topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel layui-hide layui-anim layui-anim-fadein" id="thought-block">
+                <div class="c-panel-body publish-content-top">
+                    <form class="layui-form" role="form" action="${ctxPath}/thought/post">
+                        <div class="layui-form-item">
+                            <div class="">
+                                <p class="t-intro">你有什么新想法<em class="spac4">?</em></p>
+                                <textarea placeholder="这一刻的想法" title="这一刻的想法" id="thoughtContent" name="thoughtContent" class="layui-textarea"  maxlength="400"></textarea>
+                            </div>
+                        </div>
+                        <div class="func-area layui-clear">
+                            <div class="fq-left kind">
+                            </div>
+                            <div class="fq-right">
+                                <button class="layui-btn sayout" lay-filter="tform" lay-submit>发表</button>
+                            </div>
+                        </div>
+                        <div class="layer-pic-list c-panel">
+                            <div class="imgUploadBox" >
+                                <ul class="to-upload-pictures" >
+                                    <li class="upload-img-item upload-img-add addOnePic">
+                                        <i class="layui-icon layui-icon-add-1" style="font-size: 30px; color: rgb(221, 221, 221);"></i>
+                                    </li>
+                                </ul>
+                                <div class="layui-progress layui-hide" lay-filter="thought-pic" lay-showPercent="true">
+                                    <div class="layui-progress-bar layui-bg-blue" lay-percent="0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <input name="picList" type="hidden" value="">
+                    </form>
+                </div>
+            </div>
+            <div>
+                <div class="c-panel">
+                    <div class="thought-head c-panel-title">
+                        <a class="" href="${ctxPath}/">推荐</a>
+                        <span class="c-mid"></span>
+                        <a class="" href="${ctxPath}/?type=follow">关注</a>
+                        <span class="c-mid"></span>
+                        <a class="" href="${ctxPath}/?order=zan">热榜</a>
+                        <div class="page-head" id="">
+                            <button class="layui-btn layui-btn-warm showThought">写想法</button>
+                        </div>
+                    </div>
+                    <ul class="t-list" id="thoughtList">
+                        <%for(var thought in thoughtList!){%>
+                        <li data-id="${thought.id}">
+                            <a href="javascript:;" class="c-position-rt" onclick="return false;"><i class="layui-icon layui-icon-down"></i></a>
+                            <div class="detail-about">
+                                <a href="${ctxPath}/u/${thought.userId}" u-id="${thought.userId}" class="fly-avatar"><img src="${thought.icon}"></a>
+                                <div class="fly-detail-user">
+                                    <a href="${ctxPath}/u/${thought.userId}" class="c-fly-link">
+                                        <cite>${thought.nickname}</cite>
+                                    </a>
+                                    <span class="staff">${thought.roleName!}</span>
+                                </div>
+                                <div class="detail-hits"><span class="${isNotEmpty(thought.area)?'t-area'}">${thought.area}</span><span>${thought.createDate}</span></div>
+                            </div>
+                            <div class="detail-body thought-body photos">
+                                <div class="thought-text">${emojiShow(thought.thoughtContent)}</div>
+                                <div class="thought-pic">
+                                    <ul>
+                                    <%for(var pic in thought.pictures!){%>
+                                        <li>
+                                            <img data-cursor="big" layer-src="${pic}" src="${pic}">
+                                        </li>
+                                    <%}%>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="c-list-info">
+                                <div class="c-reply layui-clear">
+                                    ${thought.collected?'<span class="collect" type="collect" data-type="remove"><i class="fa fa-heart"></i>取消收藏</span>':
+                                    '<span class="collect" type="collect" data-type="add"><i class="fa fa-heart-o"></i>收藏</span>'}
+                                    <span class="zan"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i><cite >${thought.likeCount!0}</cite></span>
+                                    <span class="comment-show" lay-data="${thought.id}"><i class="fa fa-comment-o" aria-hidden="true"></i><cite class="comment-num">${thought.commentCount!0}</cite></span>
+                                </div>
+                            </div>
+                        </li>
+                        <%}%>
+                    </ul>
+                </div>
+                <div id="pagesplit" class="c-panel">
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4 ">
+            <%if(isLogin){%>
+            <div class="c-panel c-signin">
+                <div class="c-panel-title">
+                    <a href="javascript:;" id="LAY_signinHelp">说明</a>
+                    <span class="c-mid"></span>
+                    <a href="javascript:;" id="LAY_signinTop">活跃榜</a>
+                </div>
+                <div class="sign-days-div"><span class="fly-signin-days"></span></div>
+                <div class="fly-signin-main">
+                </div>
+            </div>
+            <%}%>
+            <%include("/common/_advertisements.html"){}%>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="${ctxPath}/layui/layui.all.js"></script>
+<script src="${ctxPath}/js/fq-ui.js?v=1"></script>
+<script src="${ctxPath}/js/alioss.js?v=2"></script>
+<script>
+    var random = Math.floor((Math.random() * 100) + 1),ctx = '${ctxPath}', action = '${ossAction!}',ossSuffix='${ossSuffix!}';
+    layui.cache.user = {
+        username: '${user.nickname!""}',
+        userId:${user.id!0},
+        icon: '${user.icon!""}',
+        roleName: '${user.roleName!}'
+    };
+    if (layui.cache.user.userId == 0) {
+        layui.cache.user.username = "游客" + random;
+    }
+    layui.cache.domainUrl = '${DOMAIN_URL!}';
+    layui.config({
+        version: "${LAYUI_VERSION}"
+        ,base:'${ctxPath}/lay/modules/fly/'
+    }).extend({
+        'fly': 'cool',
+    }).use(['fly'],function () {
+    });
+</script>
+<script src="/js/twemoji.min.js?2.4"></script>
+<script src="/js/feiqu-emoji.js"></script>
+<script>
+    layui.cache.page = 'home'
+    layui.cache.pageInfo = {curr:${page.pageNum},count:${page.total},limit:${page.pageSize}}
+    var keyword = '${keyword!}';
+    var flow=layui.flow;
+    $('.detail-body img').each(function (i,item) {
+        $(item).attr('lay-src',$(item).attr('src'))
+        $(item).attr('src','')
+    })
+    flow.lazyimg();
+    $('.findThought').on('click',function () {
+        keyword = $('#findThought').val();
+        location.href = '${ctxPath}?keyword=' + keyword;
+    })
+</script>
+<%include("/common/_footor.html"){}%>
+</body>
+</html>
+
+
+
+
+
+
+

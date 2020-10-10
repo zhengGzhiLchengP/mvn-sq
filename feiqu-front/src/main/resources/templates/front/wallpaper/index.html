@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>壁纸类别 -飞趣</title>
+    <style>
+        .hot-article li {
+            position: relative
+        }
+        .hot-article li a {
+            overflow: hidden;
+            max-width: 80%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .hot-article li em {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+        }
+
+        .news-single {
+            margin: 20px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #B3CC9C;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .news-single .news-body {
+            width: 50%;
+            color: #0C0C0C !important;
+        }
+
+        .news-single .news-body time {
+            position: absolute;
+            bottom: 0;
+            font-size: 16px;
+        }
+
+        .news-body img {
+            max-height: 100%;
+            max-width: 50%;
+        }
+
+        .ad-single {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">壁纸类别</span>
+                </div>
+                <div class="c-panel-body">
+                    <%for(var category in categories){%>
+                    <div class="news-single">
+                        <div class="news-body">
+                            <a href="/wallPaper/category/${category.id}" target="_blank">
+                                    <span class="c-list-num">
+                                    <i class="iconfont icon-liulanyanjing" title="回复"></i>当前类别下的壁纸</span>
+                            </a>
+                            <img src="${category.cover}">
+                            <h2>${category.name}</h2>
+                            <h3>排名${category.rank}</h3>
+                        </div>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6">
+            <div class="c-panel">
+                <div class="c-panel-title">
+                    <span class="title-first">壁纸专辑</span>
+                </div>
+                <div class="c-panel-body">
+                    <%for(var album in albums){%>
+                    <div class="news-single">
+                        <div class="news-body">
+                            <h2>${album.name}</h2>
+                            <img src="${album.lcover}">
+                            <h3>收藏数:${album.favs}</h3>
+                        </div>
+                    </div>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer', 'laypage', 'fly'], function () {
+        var layer = layui.layer
+            , laypage = layui.laypage
+            , fly = layui.fly;
+    });
+</script>
+</html>

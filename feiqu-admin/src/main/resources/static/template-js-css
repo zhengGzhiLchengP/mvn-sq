@@ -1,0 +1,23 @@
+<script src="${ctxPath}/ajax/libs/jquery-layout/jquery.layout-latest.js"></script>
+<script src="${ctxPath}/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js"></script>
+
+
+<link href="${ctxPath}/ajax/libs/jquery-layout/jquery.layout-latest.css" rel="stylesheet"/>
+
+
+
+ <%for(var dict in dict.getType('sys_normal_disable')){%>
+    <option value="${dict.dictValue}">${dict.dictLabel}</option>
+<%}%>
+
+<%include("/common/_head.html"){}%>
+    <%include("/common/admin_css.html"){}%>
+
+
+     <%for(var dict in dict.getType('sys_show_hide')){%>
+        <div class="radio-box">
+            <input type="radio" id="${dict.dictCode}" name="visible" value="${dict.dictValue}"
+                   ${menu.visible== dict.dictValue?'checked':''}>
+            <label for="${dict.dictCode}">${dict.dictLabel}</label>
+        </div>
+    <%}%>

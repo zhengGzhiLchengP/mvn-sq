@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>${movie.basic.name!} -飞趣</title>
+    <meta name="description" content="${movie.basic.story!}">
+    <style>
+        .art-item{position:relative;}
+        .card{border-radius:2px;-webkit-box-shadow:0 1px 3px rgba(0,0,0,.1);box-shadow:0 1px 3px rgba(0,0,0,.1);-webkit-box-sizing:border-box;box-sizing:border-box}
+        .user-info{display:-webkit-box;display:-ms-flexbox;display:flex;margin:auto 0;flex-direction:column;}
+        .user-info a{padding-right:10px;font-size:14px}
+        .art-detail img{max-width:100%;}
+        .comment-detail{padding:0 0 0 55px;background:none;position:relative;line-height:20px;font-size:13px;color:#999}
+        .comment-detail .fly-avatar{left:0;top:0}
+        .comment-detail-user{white-space:nowrap;overflow:hidden}
+        .comment-body{margin:25px 0 20px;min-height:0;line-height:24px;font-size:14px}
+        .comment-body a{color:#4f99cf;text-decoration:none;transition:all .5s}
+        .detail-time{left:0;bottom:0;position:relative;top:5px;line-height:20px}
+        .detail-time span{height:20px;line-height:20px}
+        .comment-list{margin-bottom:30px}
+        .comment-list li{position:relative;padding:20px 0 10px;border-bottom:1px dotted #DFDFDF}
+        .art-wrap,.art-detail{padding:50px 0 0 5%;background:#fff;border-radius:20px;text-align:justify;min-height:500px}
+        .art-wrap{position:relative;margin-left:1rem;margin-top:35px;width:80%;filter:drop-shadow(0px 0px 15px #bbb)}
+        .art-detail{padding:0 10% 40px 0;width:100%;line-height:26px;font-size:16px}
+        .art-wrap:before{content:'';display:block;position:absolute;right:-60px;top:0;width:60px;height:50px;background:linear-gradient(42deg,#ddd 30%,rgba(0,0,0,0) 40%)}
+        .detail-box p{line-height:2rem}
+        .detail-hits .collect-btn{padding:0 10px}
+        .art-content{color:#262626;word-wrap: break-word;}
+        .art-content a{color:#01AAED}
+        .c-detail-title {
+            margin: 0 50px
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="c-panel">
+                <div class="art-item card detail-about c-panel-body">
+                    <h2 class="c-detail-title c-text-center"> ${movie.basic.name}</h2>
+                    <div class="art-wrap">
+                        <div class="art-detail">
+                            <div class="art-content">
+                                <p>影片类型： ${movie.basic.type}</p>
+                                <hr>
+                                ${movie.basic.story}
+                                <hr>
+                                <p>发行区域： ${movie.basic.releaseArea}</p>
+                                <p>发行时间： ${movie.basic.releaseDate}</p>
+                            <img src="${movie.basic.img}">
+                                <hr>
+                                预告片地址：
+                                <a href="${movie.basic.video.hightUrl}" target="_blank" referrerpolicy="no-referrer">${movie.basic.video.hightUrl}</a>
+                            </div>
+                            <%include("/common/_baidushare.html",{positon:'article-share'}){}%>
+                        </div>
+                    </div>
+                </div>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="c-panel" style="min-height: 5rem">
+                <div class="c-panel-title">广告</div>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{user:user}){}%>
+<script>
+    layui.use(['layer', 'form', 'fly','face'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , fly = layui.fly,face = layui.face,gather={},editor = $('.fly-editor');
+
+    })
+</script>
+</html>

@@ -1,0 +1,101 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div>
+                </div>
+                <table class="layui-hide" id="fqFriendLinkManage" lay-filter="fqFriendLink"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">编辑</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="run">执行</a>
+                </script>
+                <script type="text/html" id="headToolbar">
+                    <div class="layui-btn-container">
+                        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device();
+        table.render({
+            elem: '#fqFriendLinkManage'
+            , url: '/deploy/deployProject/list'
+            , toolbar: '#headToolbar'
+            , title: 'ssh 信息'
+            , totalRow: true
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'name', title: '名称', width: 160, fixed: 'left', unresize: true, sort: true},
+                {field: 'command', title: '命令', width: 160, fixed: 'left', unresize: true, sort: true},
+                {field: 'sshId', title: 'sshId', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'modifyUser', title: '用户名', width: 120, fixed: 'left', unresize: true, sort: true},
+                {field: 'modifyTime', title: '修改时间', width: 120, fixed: 'left', unresize: true, sort: true},
+                {fixed: 'right', width: 160, align: 'center', toolbar: '#bar'}
+            ]]
+            ,limit:20
+            , page: true
+            , response: {
+                msgName: 'message'
+            }
+            , id: 'fqFriendLinkReload'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(fqFriendLink)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    $.modal.open("添加部署项目" , '/deploy/deployProject/add');
+                    break;
+            }
+            ;
+        });
+        table.on('tool(fqFriendLink)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个脚本么', function (index) {
+                    fly.json('/deploy/deployProject/delete?id=' + data.id, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('fqFriendLinkReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            } else if (obj.event === 'run') {
+                $.modal.loading(1);
+                fly.json('/deploy/deployProject/run/' + data.id, {}, function (res) {
+                    $.modal.closeAll()
+                    layer.open({
+                        area: (device.ios || device.android) ? ($(window).width() + 'px') : '800px',
+                        type: 1,
+                        content: fly.content(res.data)
+                    })
+
+                });
+            }
+        });
+    });
+</script>
+</html>

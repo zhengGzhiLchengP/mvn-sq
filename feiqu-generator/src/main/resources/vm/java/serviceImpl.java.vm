@@ -1,0 +1,33 @@
+package ${packageName}import com.ruoyi.common.core.domain.Ztree;
+import com.ruoyi.common.core.text.Convert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+.service.impl;
+    #if($table.tree)
+    #end
+    #foreach($column in $columns)
+        #if($column.javaField=='createTime'||$column.javaField=='updateTime')
+            #break
+        #end
+    #end
+    ${packageName}
+        .mapper.${ClassName}Mapper;
+    ${packageName}
+        .domain.${ClassName};
+    ${packageName}
+        .service.I${ClassName}Service;
+
+/**
+ * ${functionName}Service业务层处理
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Service
+public class ${ClassName}ServiceImpl implements ${ClassName}Service {
+    @Autowired
+    private ${ClassName}Mapper ${className}Mapper;
+
+
+}

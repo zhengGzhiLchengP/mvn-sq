@@ -1,0 +1,159 @@
+<%
+layout("/common/_fq_layout.html",{title:'一起学习金融相关的知识 -飞趣社区'}){
+%>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="c-panel">
+            <div class="c-panel-body">
+                <input class="layui-input" placeholder="回车查询" id="search" value="${keyword!}">
+            </div>
+            <div class="c-panel-body">
+                <button class="layui-btn addzhishi">新增知识</button>
+                <ul class="c-list2">
+                    <%for(var know in pageInfo.list!){%>
+                    <li data-id="${know.id}">
+                        <button class="layui-btn c-position-rt edit">编辑</button>
+                        <div class="question">问题：${know.question}
+                        </div>
+                        <span class="layui-badge">${know.tags}</span>（${know.gmtCreate,'yyyy-MM-dd'}）
+                        <div class="answer">答案：${know.answer}</div>
+                        <div></div>
+                    </li>
+                    <%}%>
+                </ul>
+                <div id="pagesplit">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['fly', 'table', 'form'], function () {
+        var fly = layui.fly, table = layui.table, form = layui.form,
+            laypage = layui.laypage, device = layui.device();
+        $('#search').on('keyup', function (e) {
+            if (e.keyCode === 13)
+                location.href = '${ctxPath}/finance/knowledge?keyword=' + $(this).val();
+        })
+        $('.question,.answer').each(function () {
+            var othis = $(this), html = othis.html();
+            othis.html(fly.content(html));
+        })
+        laypage.render({
+            elem: 'pagesplit'
+            , count: ${pageInfo.total}
+            , curr:${pageInfo.pageNum}
+            , limit:${pageInfo.pageSize}
+            , jump: function (obj, first) {
+                if (!first) {
+                    location.href = "${ctxPath}/finance/knowledge?pageNum=" + obj.curr + "&pageSize=" + obj.limit+"&keyword=${keyword!}"
+                }
+            }
+        });
+        $('.edit').on('click',function () {
+            var id = $(this).parents('li').data('id');
+            fly.json('/financeKnowledge/detail?id='+id,function (res) {
+                var openIndex = layer.open({
+                    type: 1
+                    , id: 'fq_knowledge'
+                    , title: '新增知识点'
+                    , area: (device.ios || device.android) ? ($(window).width() + 'px') : '880px'
+                    , content: ['<ul class="layui-form" style="margin: 20px;">'
+                        , '<input type="hidden" name="id" value="'+id+'">'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">问题描述</label>'
+                        , '<div class="layui-input-block">'
+                        , '<textarea name="question" autofocus lay-verify="required" placeholder="问题描述" class="layui-textarea">'+res.data.question+'</textarea>'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">答案</label>'
+                        , '<div class="layui-input-block">'
+                        , '<textarea required name="answer" lay-verify="required" placeholder="答案" class="layui-textarea">'+res.data.answer+'</textarea>'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<label class="layui-form-label">标签</label>'
+                        , '<div class="layui-input-block">'
+                        , '<input required name="tags" lay-verify="required" placeholder="标签" value="'+res.data.tags+'" class="layui-input">'
+                        , '</div>'
+                        , '</li>'
+                        , '<li class="layui-form-item">'
+                        , '<div class="layui-input-block">'
+                        , '<button type="button" lay-submit lay-filter="knowledge" class="layui-btn">保存</button>'
+                        , '</div>'
+                        , '</li>'
+                        , '</ul>'].join('')
+                    , success: function (layero, index) {
+                        form.on('submit(knowledge)', function (data) {
+                            fly.json('/financeKnowledge/save', data.field, function (res) {
+                                layer.msg('保存成功！', {
+                                    icon: 1
+                                })
+                                layer.close(openIndex);
+                                location.reload();
+                            });
+                            return false;
+                        })
+                    }
+                });
+            })
+        })
+
+        $('.addzhishi').click(function () {
+            var openIndex = layer.open({
+                type: 1
+                , id: 'fq_knowledge'
+                , title: '新增知识点'
+                , area: (device.ios || device.android) ? ($(window).width() + 'px') : '880px'
+                , content: ['<ul class="layui-form" style="margin: 20px;">'
+                    , '<li class="layui-form-item">'
+                    , '<label class="layui-form-label">问题描述</label>'
+                    , '<div class="layui-input-block">'
+                    , '<textarea name="question" autofocus lay-verify="required" placeholder="问题描述" class="layui-textarea"></textarea>'
+                    , '</div>'
+                    , '</li>'
+                    , '<li class="layui-form-item">'
+                    , '<label class="layui-form-label">答案</label>'
+                    , '<div class="layui-input-block">'
+                    , '<textarea required name="answer" lay-verify="required" placeholder="答案" class="layui-textarea"></textarea>'
+                    , '</div>'
+                    , '</li>'
+                    , '<li class="layui-form-item">'
+                    , '<label class="layui-form-label">标签</label>'
+                    , '<div class="layui-input-block">'
+                    , '<input required name="tags" lay-verify="required" placeholder="标签" value="" class="layui-input">'
+                    , '</div>'
+                    , '</li>'
+                    , '<li class="layui-form-item">'
+                    , '<div class="layui-input-block">'
+                    , '<button type="button" lay-submit lay-filter="knowledge" class="layui-btn">保存</button>'
+                    , '</div>'
+                    , '</li>'
+                    , '</ul>'].join('')
+                , success: function (layero, index) {
+                    form.on('submit(knowledge)', function (data) {
+                        fly.json('/financeKnowledge/save', data.field, function (res) {
+                            layer.msg('保存成功！', {
+                                icon: 1
+                            })
+                            layer.close(openIndex);
+                            location.reload();
+                        });
+                        return false;
+                    })
+                }
+            });
+        })
+    });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

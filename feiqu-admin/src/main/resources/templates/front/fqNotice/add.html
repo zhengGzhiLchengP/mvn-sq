@@ -1,0 +1,78 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" topToFix c-panel">
+    <div class="layui-row c-desc-title">
+        <button class="layui-btn" onclick="javascript:history.back()">返回</button>
+        <form class="layui-form" action="${ctxPath}/notice/add" method="post">
+            <div>
+                <div class="layui-col-md11">
+                    写通知
+                </div>
+                <div class="layui-col-md1">
+                    <button lay-submit lay-filter="noticeform" class="layui-btn layui-btn-normal postBtn">保存</button>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="article-title layui-inline">
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text" name="title"
+                               placeholder="请输入标题">
+                    </div>
+                </div>
+                <div class="article-title layui-inline">
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text"  name="fqOrder"
+                               placeholder="请输入顺序">
+                    </div>
+                </div>
+                <div class="article-title layui-inline">
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text"  name="userId"
+                               placeholder="请输入用户id" value="22">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="article-title layui-inline">
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text" name="isShow"
+                               placeholder="是否展示"   value="1">
+                    </div>
+                </div>
+                <div class="article-title layui-inline">
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text" name="nickname"
+                               placeholder="昵称" value="官方人员">
+                    </div>
+                </div>
+            </div>
+
+            <div class="c-wrapper">
+                <textarea rows="10" name="content" class="layui-textarea fly-editor" placeholder="开始你的写作吧~"></textarea>
+            </div>
+        </form>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['layer', 'form', 'fly'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , fly = layui.fly;
+
+        form.on('submit(noticeform)', function (data) {
+            fly.json('${ctxPath}/front/fqNotice/add',data.field,function (result) {
+                layer.msg("成功~")
+                history.go(-1)
+            });
+            return false
+        })
+    })
+</script>
+</html>

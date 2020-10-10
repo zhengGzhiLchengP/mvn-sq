@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <%include("/common/_head.html"){}%>
+    <title>${title}</title>
+</head>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+%>
+<%
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<%include("/common/_scripts.html",{user:user}){}%>
+<body>
+${layoutContent}
+<%include("/common/_footor.html"){}%>
+</body>
+</html>
+
+
+

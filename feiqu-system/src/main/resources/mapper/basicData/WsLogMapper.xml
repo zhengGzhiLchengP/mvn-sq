@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feiqu.system.mapper.basicData.WsLogMapper">
+    <resultMap id="BaseResultMap" type="com.feiqu.system.model.basicData.WsLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="bytesPerTcpReceive" jdbcType="DOUBLE" property="bytespertcpreceive"/>
+        <result column="decodeErrorCount" jdbcType="INTEGER" property="decodeerrorcount"/>
+        <result column="duration" jdbcType="BIGINT" property="duration"/>
+        <result column="durationType" jdbcType="INTEGER" property="durationtype"/>
+        <result column="formated_duration" jdbcType="VARCHAR" property="formatedDuration"/>
+        <result column="handled_bytes" jdbcType="BIGINT" property="handledBytes"/>
+        <result column="handled_costs_per_packet" jdbcType="REAL" property="handledCostsPerPacket"/>
+        <result column="handled_packet_costs" jdbcType="INTEGER" property="handledPacketCosts"/>
+        <result column="handled_packets" jdbcType="INTEGER" property="handledPackets"/>
+        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="packets_per_tcp_receive" jdbcType="DOUBLE" property="packetsPerTcpReceive"/>
+        <result column="received_bytes" jdbcType="BIGINT" property="receivedBytes"/>
+        <result column="received_packets" jdbcType="INTEGER" property="receivedPackets"/>
+        <result column="received_tcps" jdbcType="INTEGER" property="receivedTcps"/>
+        <result column="request_count" jdbcType="INTEGER" property="requestCount"/>
+        <result column="sent_bytes" jdbcType="BIGINT" property="sentBytes"/>
+        <result column="sent_packets" jdbcType="INTEGER" property="sentPackets"/>
+        <result column="start" jdbcType="VARCHAR" property="start"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+    id, bytesPerTcpReceive, decodeErrorCount, duration, durationType, formated_duration, 
+    handled_bytes, handled_costs_per_packet, handled_packet_costs, handled_packets, ip, 
+    packets_per_tcp_receive, received_bytes, received_packets, received_tcps, request_count, 
+    sent_bytes, sent_packets, start
+  </sql>
+    <select id="selectByExample" parameterType="com.feiqu.system.model.basicData.WsLogExample"
+            resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from ws_log
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from ws_log
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from ws_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.feiqu.system.model.basicData.WsLogExample">
+        delete from ws_log
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.feiqu.system.model.basicData.WsLog">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into ws_log (bytesPerTcpReceive, decodeErrorCount,
+        duration, durationType, formated_duration,
+        handled_bytes, handled_costs_per_packet, handled_packet_costs,
+        handled_packets, ip, packets_per_tcp_receive,
+        received_bytes, received_packets, received_tcps,
+        request_count, sent_bytes, sent_packets,
+        start)
+        values (#{bytespertcpreceive,jdbcType=DOUBLE}, #{decodeerrorcount,jdbcType=INTEGER},
+        #{duration,jdbcType=BIGINT}, #{durationtype,jdbcType=INTEGER}, #{formatedDuration,jdbcType=VARCHAR},
+        #{handledBytes,jdbcType=BIGINT}, #{handledCostsPerPacket,jdbcType=REAL}, #{handledPacketCosts,jdbcType=INTEGER},
+        #{handledPackets,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, #{packetsPerTcpReceive,jdbcType=DOUBLE},
+        #{receivedBytes,jdbcType=BIGINT}, #{receivedPackets,jdbcType=INTEGER}, #{receivedTcps,jdbcType=INTEGER},
+        #{requestCount,jdbcType=INTEGER}, #{sentBytes,jdbcType=BIGINT}, #{sentPackets,jdbcType=INTEGER},
+        #{start,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.feiqu.system.model.basicData.WsLog">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into ws_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bytespertcpreceive != null">
+                bytesPerTcpReceive,
+            </if>
+            <if test="decodeerrorcount != null">
+                decodeErrorCount,
+            </if>
+            <if test="duration != null">
+                duration,
+            </if>
+            <if test="durationtype != null">
+                durationType,
+            </if>
+            <if test="formatedDuration != null">
+                formated_duration,
+            </if>
+            <if test="handledBytes != null">
+                handled_bytes,
+            </if>
+            <if test="handledCostsPerPacket != null">
+                handled_costs_per_packet,
+            </if>
+            <if test="handledPacketCosts != null">
+                handled_packet_costs,
+            </if>
+            <if test="handledPackets != null">
+                handled_packets,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="packetsPerTcpReceive != null">
+                packets_per_tcp_receive,
+            </if>
+            <if test="receivedBytes != null">
+                received_bytes,
+            </if>
+            <if test="receivedPackets != null">
+                received_packets,
+            </if>
+            <if test="receivedTcps != null">
+                received_tcps,
+            </if>
+            <if test="requestCount != null">
+                request_count,
+            </if>
+            <if test="sentBytes != null">
+                sent_bytes,
+            </if>
+            <if test="sentPackets != null">
+                sent_packets,
+            </if>
+            <if test="start != null">
+                start,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bytespertcpreceive != null">
+                #{bytespertcpreceive,jdbcType=DOUBLE},
+            </if>
+            <if test="decodeerrorcount != null">
+                #{decodeerrorcount,jdbcType=INTEGER},
+            </if>
+            <if test="duration != null">
+                #{duration,jdbcType=BIGINT},
+            </if>
+            <if test="durationtype != null">
+                #{durationtype,jdbcType=INTEGER},
+            </if>
+            <if test="formatedDuration != null">
+                #{formatedDuration,jdbcType=VARCHAR},
+            </if>
+            <if test="handledBytes != null">
+                #{handledBytes,jdbcType=BIGINT},
+            </if>
+            <if test="handledCostsPerPacket != null">
+                #{handledCostsPerPacket,jdbcType=REAL},
+            </if>
+            <if test="handledPacketCosts != null">
+                #{handledPacketCosts,jdbcType=INTEGER},
+            </if>
+            <if test="handledPackets != null">
+                #{handledPackets,jdbcType=INTEGER},
+            </if>
+            <if test="ip != null">
+                #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="packetsPerTcpReceive != null">
+                #{packetsPerTcpReceive,jdbcType=DOUBLE},
+            </if>
+            <if test="receivedBytes != null">
+                #{receivedBytes,jdbcType=BIGINT},
+            </if>
+            <if test="receivedPackets != null">
+                #{receivedPackets,jdbcType=INTEGER},
+            </if>
+            <if test="receivedTcps != null">
+                #{receivedTcps,jdbcType=INTEGER},
+            </if>
+            <if test="requestCount != null">
+                #{requestCount,jdbcType=INTEGER},
+            </if>
+            <if test="sentBytes != null">
+                #{sentBytes,jdbcType=BIGINT},
+            </if>
+            <if test="sentPackets != null">
+                #{sentPackets,jdbcType=INTEGER},
+            </if>
+            <if test="start != null">
+                #{start,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.feiqu.system.model.basicData.WsLogExample"
+            resultType="java.lang.Long">
+        select count(*) from ws_log
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update ws_log
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.bytespertcpreceive != null">
+                bytesPerTcpReceive = #{record.bytespertcpreceive,jdbcType=DOUBLE},
+            </if>
+            <if test="record.decodeerrorcount != null">
+                decodeErrorCount = #{record.decodeerrorcount,jdbcType=INTEGER},
+            </if>
+            <if test="record.duration != null">
+                duration = #{record.duration,jdbcType=BIGINT},
+            </if>
+            <if test="record.durationtype != null">
+                durationType = #{record.durationtype,jdbcType=INTEGER},
+            </if>
+            <if test="record.formatedDuration != null">
+                formated_duration = #{record.formatedDuration,jdbcType=VARCHAR},
+            </if>
+            <if test="record.handledBytes != null">
+                handled_bytes = #{record.handledBytes,jdbcType=BIGINT},
+            </if>
+            <if test="record.handledCostsPerPacket != null">
+                handled_costs_per_packet = #{record.handledCostsPerPacket,jdbcType=REAL},
+            </if>
+            <if test="record.handledPacketCosts != null">
+                handled_packet_costs = #{record.handledPacketCosts,jdbcType=INTEGER},
+            </if>
+            <if test="record.handledPackets != null">
+                handled_packets = #{record.handledPackets,jdbcType=INTEGER},
+            </if>
+            <if test="record.ip != null">
+                ip = #{record.ip,jdbcType=VARCHAR},
+            </if>
+            <if test="record.packetsPerTcpReceive != null">
+                packets_per_tcp_receive = #{record.packetsPerTcpReceive,jdbcType=DOUBLE},
+            </if>
+            <if test="record.receivedBytes != null">
+                received_bytes = #{record.receivedBytes,jdbcType=BIGINT},
+            </if>
+            <if test="record.receivedPackets != null">
+                received_packets = #{record.receivedPackets,jdbcType=INTEGER},
+            </if>
+            <if test="record.receivedTcps != null">
+                received_tcps = #{record.receivedTcps,jdbcType=INTEGER},
+            </if>
+            <if test="record.requestCount != null">
+                request_count = #{record.requestCount,jdbcType=INTEGER},
+            </if>
+            <if test="record.sentBytes != null">
+                sent_bytes = #{record.sentBytes,jdbcType=BIGINT},
+            </if>
+            <if test="record.sentPackets != null">
+                sent_packets = #{record.sentPackets,jdbcType=INTEGER},
+            </if>
+            <if test="record.start != null">
+                start = #{record.start,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update ws_log
+        set id = #{record.id,jdbcType=BIGINT},
+        bytesPerTcpReceive = #{record.bytespertcpreceive,jdbcType=DOUBLE},
+        decodeErrorCount = #{record.decodeerrorcount,jdbcType=INTEGER},
+        duration = #{record.duration,jdbcType=BIGINT},
+        durationType = #{record.durationtype,jdbcType=INTEGER},
+        formated_duration = #{record.formatedDuration,jdbcType=VARCHAR},
+        handled_bytes = #{record.handledBytes,jdbcType=BIGINT},
+        handled_costs_per_packet = #{record.handledCostsPerPacket,jdbcType=REAL},
+        handled_packet_costs = #{record.handledPacketCosts,jdbcType=INTEGER},
+        handled_packets = #{record.handledPackets,jdbcType=INTEGER},
+        ip = #{record.ip,jdbcType=VARCHAR},
+        packets_per_tcp_receive = #{record.packetsPerTcpReceive,jdbcType=DOUBLE},
+        received_bytes = #{record.receivedBytes,jdbcType=BIGINT},
+        received_packets = #{record.receivedPackets,jdbcType=INTEGER},
+        received_tcps = #{record.receivedTcps,jdbcType=INTEGER},
+        request_count = #{record.requestCount,jdbcType=INTEGER},
+        sent_bytes = #{record.sentBytes,jdbcType=BIGINT},
+        sent_packets = #{record.sentPackets,jdbcType=INTEGER},
+        start = #{record.start,jdbcType=VARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.feiqu.system.model.basicData.WsLog">
+        update ws_log
+        <set>
+            <if test="bytespertcpreceive != null">
+                bytesPerTcpReceive = #{bytespertcpreceive,jdbcType=DOUBLE},
+            </if>
+            <if test="decodeerrorcount != null">
+                decodeErrorCount = #{decodeerrorcount,jdbcType=INTEGER},
+            </if>
+            <if test="duration != null">
+                duration = #{duration,jdbcType=BIGINT},
+            </if>
+            <if test="durationtype != null">
+                durationType = #{durationtype,jdbcType=INTEGER},
+            </if>
+            <if test="formatedDuration != null">
+                formated_duration = #{formatedDuration,jdbcType=VARCHAR},
+            </if>
+            <if test="handledBytes != null">
+                handled_bytes = #{handledBytes,jdbcType=BIGINT},
+            </if>
+            <if test="handledCostsPerPacket != null">
+                handled_costs_per_packet = #{handledCostsPerPacket,jdbcType=REAL},
+            </if>
+            <if test="handledPacketCosts != null">
+                handled_packet_costs = #{handledPacketCosts,jdbcType=INTEGER},
+            </if>
+            <if test="handledPackets != null">
+                handled_packets = #{handledPackets,jdbcType=INTEGER},
+            </if>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="packetsPerTcpReceive != null">
+                packets_per_tcp_receive = #{packetsPerTcpReceive,jdbcType=DOUBLE},
+            </if>
+            <if test="receivedBytes != null">
+                received_bytes = #{receivedBytes,jdbcType=BIGINT},
+            </if>
+            <if test="receivedPackets != null">
+                received_packets = #{receivedPackets,jdbcType=INTEGER},
+            </if>
+            <if test="receivedTcps != null">
+                received_tcps = #{receivedTcps,jdbcType=INTEGER},
+            </if>
+            <if test="requestCount != null">
+                request_count = #{requestCount,jdbcType=INTEGER},
+            </if>
+            <if test="sentBytes != null">
+                sent_bytes = #{sentBytes,jdbcType=BIGINT},
+            </if>
+            <if test="sentPackets != null">
+                sent_packets = #{sentPackets,jdbcType=INTEGER},
+            </if>
+            <if test="start != null">
+                start = #{start,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.feiqu.system.model.basicData.WsLog">
+    update ws_log
+    set bytesPerTcpReceive = #{bytespertcpreceive,jdbcType=DOUBLE},
+      decodeErrorCount = #{decodeerrorcount,jdbcType=INTEGER},
+      duration = #{duration,jdbcType=BIGINT},
+      durationType = #{durationtype,jdbcType=INTEGER},
+      formated_duration = #{formatedDuration,jdbcType=VARCHAR},
+      handled_bytes = #{handledBytes,jdbcType=BIGINT},
+      handled_costs_per_packet = #{handledCostsPerPacket,jdbcType=REAL},
+      handled_packet_costs = #{handledPacketCosts,jdbcType=INTEGER},
+      handled_packets = #{handledPackets,jdbcType=INTEGER},
+      ip = #{ip,jdbcType=VARCHAR},
+      packets_per_tcp_receive = #{packetsPerTcpReceive,jdbcType=DOUBLE},
+      received_bytes = #{receivedBytes,jdbcType=BIGINT},
+      received_packets = #{receivedPackets,jdbcType=INTEGER},
+      received_tcps = #{receivedTcps,jdbcType=INTEGER},
+      request_count = #{requestCount,jdbcType=INTEGER},
+      sent_bytes = #{sentBytes,jdbcType=BIGINT},
+      sent_packets = #{sentPackets,jdbcType=INTEGER},
+      start = #{start,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,79 @@
+<%
+layout("/common/_fq_layout.html",{title:'查询股票'}){
+%>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="c-panel">
+            <div class="c-panel-body">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">股票代码</label>
+                            <div class="layui-input-inline" style="width: 150px;">
+                                <input name="tsCode" placeholder="股票代码" class="layui-input">
+                            </div>
+                            <label class="layui-form-label">股票名称</label>
+                            <div class="layui-input-inline" style="width: 150px;">
+                                <input name="name" placeholder="股票名称" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="searchTable">
+                        <button class="layui-btn" lay-filter="stockForm" lay-submit>搜索</button>
+                    </div>
+                </form>
+                <table id="stockManage"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['fly', 'table', 'form'], function () {
+        var fly = layui.fly, table = layui.table, form = layui.form;
+        form.on('submit(stockForm)', function (data) {
+            var field = data.field;
+            table.reload('stockManage', {
+                page: {
+                    curr: 1
+                }
+                , where: {
+                    tsCode: data.field.tsCode,
+                    name: data.field.name
+                }
+            });
+            return false;
+        });
+        table.render({
+            elem: '#stockManage'
+            , url: '/stockBasic/list/'
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.data.total,
+                    "data": res.data.list
+                };
+            }
+            , page: true
+            , cols: [[
+                {field: 'tsCode', title: 'tsCode', width: 120, sort: true}
+                , {field: 'symbol', title: 'symbol', width: 80}
+                , {field: 'name', title: '名称', width: 120, sort: true}
+                , {field: 'area', title: '地区', width: 80}
+                , {field: 'industry', title: '产业', width: 100}
+                , {field: 'market', title: 'market', width: 80}
+                , {field: 'listDate', title: 'listDate', width: 200}
+            ]]
+        });
+    });
+</script>
+<% } %>
+
+
+
+
+
+
+
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>feiqu</artifactId>
+        <groupId>com.cwd</groupId>
+        <version>1.2</version>
+    </parent>
+    <artifactId>feiqu-websocket</artifactId>
+    <version>1.2</version>
+    <description>
+        社区web服务入口
+    </description>
+
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
+    <dependencies>
+
+    <dependency>
+        <groupId>org.yeauty</groupId>
+        <artifactId>netty-websocket-spring-boot-starter</artifactId>
+        <version>0.8.0</version>
+    </dependency>
+        <!-- 核心模块-->
+        <dependency>
+            <groupId>com.cwd</groupId>
+            <artifactId>feiqu-framework</artifactId>
+        </dependency>
+    </dependencies>
+    
+</project>

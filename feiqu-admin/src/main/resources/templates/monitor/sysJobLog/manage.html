@@ -1,0 +1,80 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <table class="layui-hide" id="sysJobManage" lay-filter="sysJob"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="del">删除</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{}){}%>
+<script>
+    layui.use(['table', 'fly', 'form', 'layer'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device, layer = layui.layer;
+        table.render({
+            elem: '#sysJobManage'
+            , url: '/monitor/jobLog/list'
+            , title: '日志数据表'
+            , totalRow: true
+            , cols: [[
+                {field: 'jobLogId', title: '日志编号', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'jobGroup', title: '任务组', width: 100, fixed: 'left', unresize: true, sort: true},
+                {field: 'jobName', title: '任务名称', width: 80, fixed: 'left', unresize: true, sort: true},
+                {field: 'methodName', title: '方法名称', width: 100, fixed: 'left', unresize: true, sort: true},
+                {field: 'methodParams', title: '参数', width: 70, fixed: 'left', unresize: true, sort: true},
+                {field: 'jobMessage', title: 'JOB信息', width: 150, fixed: 'left', unresize: true, sort: true},
+                {field: 'createTime', title: '创建时间', width: 150, fixed: 'left', unresize: false, sort: true},
+                {field: 'status', title: '状态', width: 80, fixed: 'left', unresize: false, sort: true},
+                {fixed: 'right', width: 150, align: 'center', toolbar: '#bar'}
+            ]]
+            , page: true
+            , response: {
+                statusCode: '0000',
+                msgName: 'message'
+            }
+            , id: 'sysJobReload'
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.total, //解析数据长度
+                    "data": res.rows //解析数据列表
+                };
+            }
+        });
+        //头工具栏事件
+        table.on('toolbar(sysJob)', function (obj) {
+            switch (obj.event) {
+
+            }
+            ;
+        });
+        table.on('tool(sysJob)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个日志么', function (index) {
+                    fly.json('/monitor/jobLog/delete?id=' + data.jobLogId, {}, function (res) {
+                        layer.msg('删除成功！');
+                        table.reload('sysJobReload', {
+                            page: {
+                                curr: 1
+                            }
+                        });
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+    });
+</script>
+</html>

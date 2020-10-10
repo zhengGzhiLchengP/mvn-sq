@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include("/common/_head.html"){}%>
+    <title>账号登录 -飞趣</title>
+    <style>
+        .nav-ul li {
+            padding: 0 1.5rem;
+        }
+
+        .layui-form {
+            margin: 20px 0 0 10px;
+        }
+
+        .aside {
+            padding-top: 3rem;
+        }
+        .aside a {
+            color: #1E9FFF;
+        }
+        .fly-form-app {
+            margin-top: 10px;
+        }
+        .fly-form-app .icon-qq {
+            color: #7CA9C9;
+        }
+        .fly-form-app .icon-weibo {
+            color: #E6162D;
+        }
+        .login-btn {
+            margin-left: 8rem;
+        }
+
+        .fq-row-box {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+<body>
+<%
+var user = c.currentUser(request, servlet.response);
+var isLogin = false;
+if(user != null){
+isLogin=true;
+}
+include("/common/_headwithlogin.html",{user:user,isLogin:isLogin}){}
+%>
+<div class="layui-container topToFix">
+    <div class="layui-row c-panel">
+        <div class="layui-md layui-col-md6 c-panel">
+            <div class="c-panel-body">
+                <form class="layui-form layui-form-pane" action="${ctxPath}/u/login" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">邮箱</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="username" required lay-verify="required" placeholder="请输入邮箱"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">密码</label>
+                        <div class="layui-input-block">
+                            <input type="password" name="password" required lay-verify="required" placeholder="请输入密码"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">验证码</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="verifyCode" required lay-verify="required" placeholder="请输入验证码"
+                                   autocomplete="off" class="layui-input" maxlength="5">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block"><img id="captchaImg" src="${ctxPath}/captcha"/></div>
+                    </div>
+                    <div class="fq-row-box">
+                        <div class=" fq-text-center">
+                            <input type="checkbox" name="remember" lay-skin="switch">
+                            <label class="">记住我</label>
+                        </div>
+                        <div class=" fq-text-center" style="display: flex;align-items: center">
+                            <a href="/u/forget">忘记密码？</a>
+                        </div>
+                    </div>
+                    <div class="layui-form-item fly-form-app">
+                        <button class="layui-btn layui-btn-normal login-btn" lay-submit lay-filter="formDemo">登录</button>
+                        <span style="padding-left:20px;">  </span>
+                        <span>或者使用社交账号登入</span>
+                        <a href="${ctxPath}/sns?t=qq" onclick="layer.msg('正在通过QQ登入', {icon:16, shade: 0.1, time:0})"
+                                                   class="iconfont icon-qq" title="QQ登入"></a>
+                        <a href="${ctxPath}/sns?t=sina" onclick="layer.msg('正在通过微博登入', {icon:16, shade: 0.1, time:0})"
+                            class="iconfont icon-weibo" title="微博登入"></a>
+                        <a href="${ctxPath}/sns?t=github" style="font-size: 25px" onclick="layer.msg('正在通过github登入', {icon:16, shade: 0.1, time:0})"
+                           class="fa fa-github" title="github登入"></a>
+                    </div>
+                    <div class="">
+
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="layui-col-md4 layui-col-md-offset2">
+            <div class="aside">
+                <p>还没有飞趣账号？<a href="${ctxPath}/u/register">立即注册</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_footor.html"){}%>
+</body>
+<%include("/common/_scripts.html"){}%>
+<script>
+    var form = layui.form, fly = layui.fly;
+    form.on('submit(formDemo)', function (data) {
+        var action = $(data.form).attr('action');
+        data.field.rsUrl = "${rsUrl!''}";
+        var param = {
+            username:data.field.username,
+            password:data.field.password,
+            verifyCode:data.field.verifyCode,
+            remember:data.field.remember,
+            rsUrl:data.field.rsUrl
+        };
+        $.ajax({
+            type: "post",
+            url:  action,
+            contentType: "application/json",
+            data: JSON.stringify(param),
+            dataType: "json",
+            success: function(result) {
+                if(result.code === 0){
+                    $.modal.msgSuccess("登录成功！")
+                    if (result.data) {
+                        location.href = result.data
+                    } else {
+                        location.href = "${DOMAIN_URL}/"
+                    }
+                }else {
+                    $.modal.msgError(result.msg)
+                    $("#captchaImg").trigger('click');
+                }
+            },
+            error: function(msg) {
+                console.log(msg)
+                $("#captchaImg").trigger('click');
+            }
+        })
+        return false;
+    });
+    $("#captchaImg").on('click',function () {
+        var time = new Date().getTime()
+        $(this).attr('src', '${ctxPath}/captcha?time=' + time)
+    })
+</script>
+</html>

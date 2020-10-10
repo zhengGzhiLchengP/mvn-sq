@@ -1,0 +1,146 @@
+<style>
+    body {
+        margin-top: 0 !important;
+    }
+    .echarts {
+        margin: 20px auto;
+        width: 94%;
+        height: 400px;
+    }
+</style>
+<%include("/common/_head.html"){}%>
+<div class=" fly-marginTop ">
+    <div class="c-panel fly-panel-user detail-box">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md12">
+                <div class="echarts" id="echarts"></div>
+                <table class="layui-hide" id="sysJobManage" lay-filter="sysJob"></table>
+                <script type="text/html" id="bar">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="del">删除</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<%include("/common/_scripts.html",{}){}%>
+<script src="/js/echarts.min.js"></script>
+<script>
+    var myEcharts;
+    function loadEchartsData(data) {
+        let series = data.series;
+        let cpuItem = {
+            name: 'cpu占用',
+            type: 'line',
+            data: [0],
+            //设置折线为曲线
+            smooth: true
+        };
+        let diskItem = {
+            name: '磁盘占用',
+            type: 'line',
+            data: [0],
+            smooth: true
+        };
+        let memoryItem = {
+            name: '内存占用',
+            type: 'line',
+            data: [0],
+            smooth: true
+        };
+        for (let i = 0; i < series.length; i++) {
+            let item = series[i];
+            if (i === 0) {
+                //删除默认0的数据
+                cpuItem.data.splice(0, 1);
+                diskItem.data.splice(0, 1);
+                memoryItem.data.splice(0, 1);
+            }
+            cpuItem.data.push(parseFloat(item.cpu));
+            diskItem.data.push(parseFloat(item.disk));
+            memoryItem.data.push(parseFloat(item.memory));
+        }
+        let array = [cpuItem, memoryItem, diskItem];
+        loadEcharts(data.scale, array);
+    }
+    function loadEcharts(xAxis, series) {
+        if (!series) {
+            return;
+        }
+        let option = {
+            title: {
+                text: '系统监控'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['cpu占用', '内存占用', '磁盘占用'],
+                right: '1%'
+            },
+            grid: {
+                left: '1%',
+                right: '2%',
+                bottom: '1%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: xAxis
+            },
+            calculable: true,
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    //设置y轴数值为%
+                    formatter: '{value} %'
+                },
+                max: 100
+            },
+            series: series
+        };
+        if (!myEcharts) {
+            myEcharts = echarts.init(document.getElementById('echarts'));
+        }
+        myEcharts.setOption(option);
+    }
+    layui.use(['table', 'fly', 'form', 'layer'], function () {
+        var table = layui.table
+            , fly = layui.fly, form = layui.form, device = layui.device, layer = layui.layer;
+        var col = [{field: 'pid', title: '进程id', sort: true, width: '6%'},
+            {field: 'command', title: '进程名称'},
+            {field: 'port', title: '端口', sort: true, width: '6%'},
+            {field: 'user', title: '所有者', width: '8%', sort: true},
+            {field: 'jpomName', title: '项目名称', width: '8%', sort: true},
+            {field: 'res', title: '物理内存', width: '8%', sort: true},
+            {field: 'status', title: '进程状态', width: '8%', sort: true},
+            {field: 'cpu', title: '占用CPU', width: '8%', sort: true},
+            {field: 'mem', title: '物理内存', width: '8%', sort: true},
+            {field: 'time', title: '时间总计', sort: true},
+            {field: 'pr', title: '优先级', width: '6%', sort: true},
+            {field: 'virt', title: '虚拟内存', width: '8%', sort: true},
+            {field: 'shr', title: '共享内存', width: '8%', sort: true}];
+        table.render({
+            elem: '#sysJobManage'
+            ,method: 'POST'
+            , url: '/monitor/sysProcess/processList'
+            , title: '进程数据表'
+            , totalRow: true
+            , cols: [col]
+            , page: true
+            , id: 'sysJobReload'
+
+        });
+        var echartData = {scale:[],series:[]}
+        setInterval(function () {
+            fly.json('/monitor/sysProcess/getTop' , {}, function (res) {
+                console.log(res)
+                var data = res.data;
+                echartData.scale.push(data.time)
+                echartData.series.push(data)
+                loadEchartsData(echartData)
+            });
+        },5000)
+    });
+</script>
+</html>

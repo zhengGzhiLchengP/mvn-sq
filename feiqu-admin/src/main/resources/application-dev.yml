@@ -1,0 +1,174 @@
+# 项目相关配置
+feiqu:
+  # 名称
+  name: Feiqu
+  # 版本
+  version: 1.0.0
+  # 版权年份
+  copyrightYear: 2019
+  # 文件上传路径
+  profile: D:/profile/
+  # 获取ip地址开关
+  addressEnabled: true
+#  css
+  cssVersion: 1547879679235
+
+  jsVersion: 1547879679223
+#  layui js
+  layuiVersion: 15478796792613
+
+  domainUrl: http://localhost:8081
+
+  frontDomainUrl: http://localhost:8080
+  maxUploadSize: 200
+
+  uploadPath: D:/tempfile/upload/
+
+  ip2regionDbPath: D:/file/ip2region.db
+#  ip2regionDbPath: /home/chenweidong/ip2region.db
+  fileLocation: D:/file/
+
+  nginxLocation: D:/file/
+
+mysql:
+  host: localhost:3306
+
+# 日志配置
+logging:
+  level:
+    org.springfromework.web: info
+
+  config: classpath:logback-dev.xml
+
+# 用户配置
+user:
+  password:
+    # 密码错误{maxRetryCount}次锁定10分钟
+    maxRetryCount: 5
+
+# Spring配置
+spring:
+  redis:
+    host: localhost
+    jedis:
+      pool:
+        max-active: 8
+        min-idle: 0
+    port: 6379
+    password:
+  mvc:
+      throw-exception-if-no-handler-found: true
+      static-path-pattern: /**
+  resources:
+      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/
+  mail:
+    default-encoding: utf-8
+    host: smtp.mxhichina.com
+    username: admin@f2qu.com
+    password: Chen87548081
+    protocol: smtps
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  profiles:
+    #active: druid
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  # 文件上传
+  servlet:
+     multipart:
+       max-file-size:  30MB
+       max-request-size:  30MB
+  # 服务模块
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: true
+  datasource:
+          type: com.alibaba.druid.pool.DruidDataSource
+          driverClassName: com.mysql.cj.jdbc.Driver
+          druid:
+              # 主库数据源
+              master:
+                url: jdbc:mysql://${mysql.host}/main_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+                username: root
+                password: 123
+            #
+              collect-data:
+                url: jdbc:mysql://${mysql.host}/collect_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+                username: root
+                password: 123
+              # 基础数据库
+              basic-data:
+                  # 从数据源开关/默认关闭
+                  enabled: true
+                  url: jdbc:mysql://${mysql.host}/basic_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                  username: root
+                  password: 123
+              # 后台系统数据
+              sys-data:
+                  enabled: true
+                  url: jdbc:mysql://${mysql.host}/sys_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                  username: root
+                  password: 123
+            # 后台系统数据
+              task-data:
+                  url: jdbc:mysql://${mysql.host}/task_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                  username: root
+                  password: 123
+              deploy-data:
+                url: jdbc:mysql://${mysql.host}/deploy_data?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                username: root
+                password: 123
+              # 初始连接数
+              initialSize: 10
+              # 最小连接池数量
+              minIdle: 10
+              # 最大连接池数量
+              maxActive: 20
+              # 配置获取连接等待超时的时间
+              maxWait: 60000
+              # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+              timeBetweenEvictionRunsMillis: 60000
+              # 配置一个连接在池中最小生存的时间，单位是毫秒
+              minEvictableIdleTimeMillis: 300000
+              # 配置一个连接在池中最大生存的时间，单位是毫秒
+              maxEvictableIdleTimeMillis: 900000
+              # 配置检测连接是否有效
+              validationQuery: SELECT 1 FROM DUAL
+              testWhileIdle: true
+              testOnBorrow: true
+              testOnReturn: false
+              webStatFilter:
+                enabled: true
+              statViewServlet:
+                #                  login-username: chenweidong
+                #                  login-password: wei930720
+                # 设置白名单，不填则允许所有访问
+                allow:
+                enabled: true
+                url-pattern: /monitor/druid/*
+                reset-enable: true
+              filter:
+                  stat:
+                    enabled: true
+                    # 慢SQL记录
+                    log-slow-sql: true
+                    slow-sql-millis: 1000
+                    merge-sql: true
+                  wall:
+                      config:
+                          multi-statement-allow: true
+
+
+# 代码生成
+gen:
+  # 作者
+  author: chenweidong
+  # 默认生成包路径 system 需改成自己的模块名称 如 system monitor tool
+  packageName: com.feiqu.system
+  # 自动去除表前缀，默认是true
+  autoRemovePre: true
+
